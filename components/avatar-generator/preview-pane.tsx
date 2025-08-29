@@ -138,7 +138,7 @@ export function PreviewPane({
 
               <Button
                 onClick={onMint}
-                disabled={isGenerating}
+                disabled={true}
                 variant="outline"
                 size="lg"
                 className="flex items-center gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
