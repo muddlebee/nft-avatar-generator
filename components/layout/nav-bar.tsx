@@ -4,6 +4,12 @@ import { WalletSelect } from "../account/wallet-select";
 import { fontUnbounded } from "@/fonts";
 import { cn } from "@/lib/utils";
 
+export interface NavItem {
+  title: string;
+  href?: string;
+  items?: NavItem[];
+}
+
 export function NavBar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
