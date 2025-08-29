@@ -34,15 +34,15 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
 ];
 
 export const DEFAULT_TRAITS: TraitSelection = {
-  headgear: "none",
-  accessory: "none", 
+  headgear: "cap",
+  accessory: "round glasses", 
   clothing: "hoodie",
   background: "plain gradient",
-  expression: "neutral",
+  expression: "playful",
   hair: "short",
   skin: "medium",
-  special: "none",
-  weapon: "none"
+  special: "wings",
+  weapon: "magic orb"
 };
 
 export function getRandomTraits(): TraitSelection {
