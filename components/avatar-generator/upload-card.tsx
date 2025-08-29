@@ -116,16 +116,29 @@ export function UploadCard({
                 onClick={clearImage}
                 disabled={isGenerating}
                 className={cn(
-                  "absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
+                  "absolute top-2 right-2 p-2 bg-destructive/90 hover:bg-destructive text-destructive-foreground rounded-full shadow-sm transition-all duration-200 hover:scale-110",
+                  isGenerating && "opacity-50 cursor-not-allowed"
+                )}
+                title="Remove image"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                ✓ Ready! Select traits to generate.
+              </p>
+              <button
+                onClick={clearImage}
+                disabled={isGenerating}
+                className={cn(
+                  "text-xs text-destructive hover:text-destructive/80 transition-colors",
                   isGenerating && "opacity-50 cursor-not-allowed"
                 )}
               >
-                <X className="w-3 h-3" />
+                Remove image
               </button>
             </div>
-            <p className="text-xs text-muted-foreground text-center">
-              ✓ Ready! Select traits to generate.
-            </p>
           </div>
         ) : (
           <div
