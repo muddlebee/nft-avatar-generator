@@ -28,8 +28,9 @@ export default function RootLayout({
         <ClientProvider defaultChainId="polkadot">
           <NavBar />
           <main className="min-h-screen">{children}</main>
-          {/* <Footer /> */}
+          {/* <Footer /> 
           <ChainInfo />
+          */}
           <Toaster position="bottom-center" icons={{ loading: <Loader /> }} />
         </ClientProvider>
         <Analytics />

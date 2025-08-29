@@ -30,7 +30,7 @@ export function PolkadotProvider({
   const [currentChainId, setCurrentChainId] = useState<ChainId>(defaultChainId);
 
   return (
-    <ThemeProvider defaultTheme="dark">
+    <ThemeProvider defaultTheme="light">
       <PolkadotContext.Provider
         value={{
           chainId: currentChainId,
