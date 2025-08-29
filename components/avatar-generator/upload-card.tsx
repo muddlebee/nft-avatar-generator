@@ -19,6 +19,7 @@ export function UploadCard({
   referralCodeTier,
   maxAttempts,
   attemptsUsed,
+  wasAutoApplied,
   onReferralCodeValidate
 }: UploadCardProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -201,6 +202,7 @@ export function UploadCard({
                   onChange={(e) => setReferralCodeInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleReferralCodeSubmit()}
                   disabled={isGenerating}
+                  placeholder="Enter your referral code"
                   className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
                 />
                 <button
@@ -215,22 +217,43 @@ export function UploadCard({
           ) : (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${attemptsUsed >= maxAttempts ? 'text-red-600' : 'text-green-600'}`}>
-                  {attemptsUsed >= maxAttempts ? '⚠️' : '✓'} {referralCodeTier} Code {attemptsUsed >= maxAttempts ? 'Exhausted' : 'Validated'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-medium ${attemptsUsed >= maxAttempts ? 'text-red-600' : 'text-green-600'}`}>
+                    {attemptsUsed >= maxAttempts ? '⚠️' : '✓'} {referralCodeTier} Code {attemptsUsed >= maxAttempts ? 'Exhausted' : 'Validated'}
+                  </span>
+                  {wasAutoApplied && (
+                    <span className="text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full border">
+                      Auto-applied
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs text-muted-foreground">
                   {attemptsUsed}/{maxAttempts} attempts used
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div 
                   className={`h-2 rounded-full transition-all duration-300 ${attemptsUsed >= maxAttempts ? 'bg-red-500' : 'bg-green-500'}`}
                   style={{ width: `${(attemptsUsed / maxAttempts) * 100}%` }}
                 ></div>
               </div>
-              <p className={`text-xs ${attemptsUsed >= maxAttempts ? 'text-red-600' : 'text-muted-foreground'}`}>
-                {attemptsUsed >= maxAttempts ? 'No attempts remaining' : `${maxAttempts - attemptsUsed} attempts remaining`}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className={`text-xs ${attemptsUsed >= maxAttempts ? 'text-red-600' : 'text-muted-foreground'}`}>
+                  {attemptsUsed >= maxAttempts ? 'No attempts remaining' : `${maxAttempts - attemptsUsed} attempts remaining`}
+                </p>
+                {referralCode && (
+                  <p className="text-xs text-muted-foreground font-mono">
+                    Code: {referralCode}
+                  </p>
+                )}
+              </div>
+  {/*             {wasAutoApplied && (
+                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                    🎉 <span className="font-medium">Welcome!</span> Your referral code was automatically applied from the URL.
+                  </p>
+                </div>
+              )} */}
             </div>
           )}
         </div>

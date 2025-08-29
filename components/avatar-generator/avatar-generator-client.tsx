@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { UploadCard } from "./upload-card";
 import { TraitSidebar } from "./trait-sidebar";
 import { PreviewPane } from "./preview-pane";
@@ -16,6 +17,8 @@ interface GenerateAvatarResponse {
 }
 
 export function AvatarGeneratorClient() {
+  const searchParams = useSearchParams();
+  
   const [state, setState] = useState<AvatarGeneratorState>({
     baseImage: "/swush.png",
     baseImageFile: null,
@@ -32,6 +35,7 @@ export function AvatarGeneratorClient() {
   const [referralCodeTier, setReferralCodeTier] = useState("");
   const [maxAttempts, setMaxAttempts] = useState(0);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [wasAutoApplied, setWasAutoApplied] = useState(false);
 
   const canGenerate = useMemo(() => {
     return !!state.baseImage && !state.isGenerating && referralCodeValidated && attemptsUsed < maxAttempts;
@@ -219,6 +223,31 @@ export function AvatarGeneratorClient() {
     alert("NFT minting will be implemented in Phase 2!");
   }, [state.lockedVariant, state.selectedTraits, state.baseImageFile]);
 
+  // Auto-apply referral code from URL parameters
+  useEffect(() => {
+    const urlRefCode = searchParams.get('refCode');
+    
+    if (urlRefCode && !referralCodeValidated) {
+      console.log(`Auto-applying referral code from URL: ${urlRefCode}`);
+      // Auto-validate the referral code from URL
+      const success = validateReferralCode(urlRefCode);
+      
+      if (success) {
+        setWasAutoApplied(true);
+        console.log(`✓ Referral code ${urlRefCode} auto-applied successfully`);
+        
+        // Clean up URL after successful validation to prevent re-application
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('refCode');
+          window.history.replaceState({}, '', url.toString());
+        }
+      } else {
+        console.log(`✗ Failed to auto-apply referral code: ${urlRefCode}`);
+      }
+    }
+  }, [searchParams, referralCodeValidated, validateReferralCode]);
+
   // Convert pre-loaded image to data URL for API compatibility
   useEffect(() => {
     const convertImageToDataUrl = async () => {
@@ -279,6 +308,7 @@ export function AvatarGeneratorClient() {
           referralCodeTier={referralCodeTier}
           maxAttempts={maxAttempts}
           attemptsUsed={attemptsUsed}
+          wasAutoApplied={wasAutoApplied}
           onReferralCodeValidate={validateReferralCode}
         />
         

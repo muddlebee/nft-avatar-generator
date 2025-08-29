@@ -44,6 +44,7 @@ export interface UploadCardProps {
   referralCodeTier: string;
   maxAttempts: number;
   attemptsUsed: number;
+  wasAutoApplied: boolean;
   onReferralCodeValidate: (code: string) => boolean;
 }
 
