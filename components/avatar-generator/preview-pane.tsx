@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, Sparkles, Eye, Wand2, Coins, Loader2 } from "lucide-react";
+import { Download, Sparkles, Eye, Wand2, Coins, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,11 @@ export function PreviewPane({
   hasVariants,
   onGenerate,
   onLock,
-  onMint
+  onMint,
+  referralCodeValidated,
+  referralCodeTier,
+  attemptsUsed,
+  maxAttempts
 }: PreviewPaneProps) {
   const selectedVariant = lockedVariant || variants[0];
 
@@ -81,11 +85,7 @@ export function PreviewPane({
                 alt="Generated avatar"
                 className="w-full h-full object-cover"
               />
-              {lockedVariant && (
-                <div className="absolute top-3 right-3 bg-primary text-primary-foreground p-2 rounded-full">
-                  <Lock className="w-4 h-4" />
-                </div>
-              )}
+
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
                 <p className="text-white text-sm font-medium">
                   Seed: {selectedVariant.seed}
@@ -113,23 +113,32 @@ export function PreviewPane({
             {getGenerateButtonText()}
           </Button>
 
-          {/* Lock & Mint Buttons */}
+          {/* Download & Mint Buttons */}
           {hasVariants && (
             <div className="grid grid-cols-2 gap-4">
               <Button
-                onClick={onLock}
-                disabled={!hasVariants || isGenerating || !!lockedVariant}
-                variant={lockedVariant ? "default" : "outline"}
+                onClick={() => {
+                  if (selectedVariant?.url) {
+                    const link = document.createElement('a');
+                    link.href = selectedVariant.url;
+                    link.download = `avatar-${selectedVariant.seed}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }
+                }}
+                disabled={!hasVariants || isGenerating}
+                variant="outline"
                 size="lg"
                 className="flex items-center gap-2"
               >
-                <Lock className="w-4 h-4" />
-                {lockedVariant ? "Locked" : "Lock"}
+                <Download className="w-4 h-4" />
+                Download
               </Button>
 
               <Button
                 onClick={onMint}
-                disabled={!lockedVariant || isGenerating}
+                disabled={isGenerating}
                 variant="outline"
                 size="lg"
                 className="flex items-center gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
@@ -145,19 +154,30 @@ export function PreviewPane({
         <div className="text-center">
           {!canGenerate && (
             <p className="text-xs text-muted-foreground">
-              Upload an image and select traits to generate
+              {!referralCodeValidated 
+                ? "Enter a valid referral code to start generating"
+                : attemptsUsed >= maxAttempts
+                ? "No attempts remaining with this code"
+                : "Upload an image and select traits to generate"
+              }
             </p>
           )}
           
-          {hasVariants && !lockedVariant && (
+          {referralCodeValidated && attemptsUsed < maxAttempts && (
+            <p className="text-xs text-green-600 dark:text-green-400 mb-2">
+              ✓ {referralCodeTier} Code Active • {maxAttempts - attemptsUsed} attempts remaining
+            </p>
+          )}
+          
+          {referralCodeValidated && attemptsUsed >= maxAttempts && (
+            <p className="text-xs text-red-600 dark:text-red-400 mb-2">
+              ⚠️ {referralCodeTier} Code Exhausted • 0 attempts remaining
+            </p>
+          )}
+          
+          {hasVariants && (
             <p className="text-xs text-muted-foreground">
-              Lock a variant before minting your NFT
-            </p>
-          )}
-          
-          {lockedVariant && (
-            <p className="text-xs text-green-600 dark:text-green-400">
-              ✓ Variant locked! Ready to mint as NFT
+              Download your avatar or mint it as an NFT
             </p>
           )}
           

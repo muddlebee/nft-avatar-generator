@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { UploadCard } from "./upload-card";
 import { TraitSidebar } from "./trait-sidebar";
 import { PreviewPane } from "./preview-pane";
@@ -26,9 +26,16 @@ export function AvatarGeneratorClient() {
     uploadError: null,
   });
 
+  // Referral code state
+  const [referralCode, setReferralCode] = useState("");
+  const [referralCodeValidated, setReferralCodeValidated] = useState(false);
+  const [referralCodeTier, setReferralCodeTier] = useState("");
+  const [maxAttempts, setMaxAttempts] = useState(0);
+  const [attemptsUsed, setAttemptsUsed] = useState(0);
+
   const canGenerate = useMemo(() => {
-    return !!state.baseImage && !state.isGenerating;
-  }, [state.baseImage, state.isGenerating]);
+    return !!state.baseImage && !state.isGenerating && referralCodeValidated && attemptsUsed < maxAttempts;
+  }, [state.baseImage, state.isGenerating, referralCodeValidated, attemptsUsed, maxAttempts]);
 
   const handleImageUpload = useCallback((file: File | null, dataUrl: string) => {
     if (!file) {
@@ -72,8 +79,59 @@ export function AvatarGeneratorClient() {
     }));
   }, [state.isGenerating]);
 
+  // Simple referral code validation with local storage
+  const validateReferralCode = useCallback((code: string) => {
+    const validCodes = {
+      'X7K9M2P': { tier: 'Tier 2', maxAttempts: 2 },
+      'HS2345': { tier: 'Tier 2', maxAttempts: 2 },
+      'R4N8Q1L': { tier: 'Tier 3', maxAttempts: 3 },
+      'B5W3H7J': { tier: 'Tier 5', maxAttempts: 5 },
+      'F9D6S2V': { tier: 'VIP', maxAttempts: 5 },
+      'K8M4Z1X': { tier: 'Hackathon', maxAttempts: 3 },
+      'T2L7N9Q': { tier: 'Early Access', maxAttempts: 2 }
+    };
+
+    const codeInfo = validCodes[code as keyof typeof validCodes];
+    if (codeInfo) {
+      // Check if user has already used this code
+      const storageKey = `referral_${code}`;
+      const stored = localStorage.getItem(storageKey);
+      const attempts = stored ? parseInt(stored) : 0;
+      
+      if (attempts < codeInfo.maxAttempts) {
+        setReferralCode(code);
+        setReferralCodeValidated(true);
+        setReferralCodeTier(codeInfo.tier);
+        setMaxAttempts(codeInfo.maxAttempts);
+        setAttemptsUsed(attempts);
+        return true;
+      } else {
+        // Code is exhausted - don't validate it
+        alert(`Rate limit exceeded! You've used ${attempts}/${codeInfo.maxAttempts} attempts with this code.`);
+        setReferralCode("");
+        setReferralCodeValidated(false);
+        setReferralCodeTier("");
+        setMaxAttempts(0);
+        setAttemptsUsed(0);
+        return false;
+      }
+    } else {
+      alert('Invalid referral code. Please try again.');
+      return false;
+    }
+  }, []);
+
   const handleGenerate = useCallback(async () => {
     if (!canGenerate) return;
+
+    // Check rate limit before generation
+    const storageKey = `referral_${referralCode}`;
+    const currentAttempts = parseInt(localStorage.getItem(storageKey) || '0');
+    
+    if (currentAttempts >= maxAttempts) {
+      alert(`Rate limit exceeded! You've used ${currentAttempts}/${maxAttempts} attempts.`);
+      return;
+    }
 
     setState(prev => ({ ...prev, isGenerating: true, lockedVariant: null }));
 
@@ -107,6 +165,19 @@ export function AvatarGeneratorClient() {
         isGenerating: false,
         uploadError: null,
       }));
+
+      // Increment usage count after successful generation
+      const newAttempts = currentAttempts + 1;
+      localStorage.setItem(storageKey, newAttempts.toString());
+      setAttemptsUsed(newAttempts);
+      
+      // Show remaining attempts
+      const remaining = maxAttempts - newAttempts;
+      if (remaining > 0) {
+        console.log(`Avatar generated! ${remaining} attempts remaining.`);
+      } else {
+        console.log('Avatar generated! No attempts remaining.');
+      }
 
     } catch (error) {
       console.error('Avatar generation failed:', error);
@@ -148,6 +219,52 @@ export function AvatarGeneratorClient() {
     alert("NFT minting will be implemented in Phase 2!");
   }, [state.lockedVariant, state.selectedTraits, state.baseImageFile]);
 
+  // Convert pre-loaded image to data URL for API compatibility
+  useEffect(() => {
+    const convertImageToDataUrl = async () => {
+      try {
+        const response = await fetch('/swush.png');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        reader.onload = () => {
+          const dataUrl = reader.result as string;
+          setState(prev => ({
+            ...prev,
+            baseImage: dataUrl,
+          }));
+        };
+        
+        reader.onerror = () => {
+          console.error('Failed to read image file');
+          // Fallback to original path if conversion fails
+          setState(prev => ({
+            ...prev,
+            baseImage: '/swush.png',
+          }));
+        };
+        
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('Failed to convert pre-loaded image to data URL:', error);
+        // Keep the original path if conversion fails
+        setState(prev => ({
+          ...prev,
+          baseImage: '/swush.png',
+        }));
+      }
+    };
+
+    // Only convert if we have the default image path
+    if (state.baseImage === '/swush.png') {
+      convertImageToDataUrl();
+    }
+  }, []);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       {/* Left Column - Controls */}
@@ -157,6 +274,12 @@ export function AvatarGeneratorClient() {
           onImageUpload={handleImageUpload}
           uploadError={state.uploadError}
           isGenerating={state.isGenerating}
+          referralCode={referralCode}
+          referralCodeValidated={referralCodeValidated}
+          referralCodeTier={referralCodeTier}
+          maxAttempts={maxAttempts}
+          attemptsUsed={attemptsUsed}
+          onReferralCodeValidate={validateReferralCode}
         />
         
         <TraitSidebar
@@ -180,6 +303,10 @@ export function AvatarGeneratorClient() {
           onGenerate={handleGenerate}
           onLock={handleLock}
           onMint={handleMint}
+          referralCodeValidated={referralCodeValidated}
+          referralCodeTier={referralCodeTier}
+          attemptsUsed={attemptsUsed}
+          maxAttempts={maxAttempts}
         />
       </div>
     </div>

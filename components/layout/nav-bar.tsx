@@ -25,11 +25,11 @@ export function NavBar() {
           </div>
           
           {/* Controls */}
-          <div className="flex gap-2 items-center ml-6">
+  {/*         <div className="flex gap-2 items-center ml-6">
             <ThemeToggle />
             <ChainSelect />
             <WalletSelect />
-          </div>
+          </div> */}
         </div>
       </div>
     </header>

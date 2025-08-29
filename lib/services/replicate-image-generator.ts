@@ -24,9 +24,6 @@ export class ReplicateImageGenerator {
 
   async generateAvatarImage(prompt: string, imageInput?: string | string[]): Promise<ReplicateImageGenerationResult> {
     try {
-      console.log('Generating image with Replicate nano-banana model:', prompt);
-      console.log('Image input provided:', !!imageInput);
-
       // Prepare input object for nano-banana model
       const inputData: any = {
         prompt: prompt,
@@ -36,14 +33,10 @@ export class ReplicateImageGenerator {
       if (imageInput) {
         if (Array.isArray(imageInput)) {
           inputData.image_input = imageInput;
-          console.log('Using multiple image inputs:', imageInput.length);
         } else {
           inputData.image_input = [imageInput];
-          console.log('Using single image input');
         }
       }
-
-      console.log('Input data:', JSON.stringify(inputData, null, 2));
 
       // Using Google's nano-banana model via Replicate
       const output = await this.replicate.run(
@@ -85,7 +78,6 @@ export class ReplicateImageGenerator {
         }
       }
 
-      console.log('Unexpected output format:', output);
       return {
         success: false,
         error: 'No valid image URL received from Replicate API',
@@ -126,8 +118,6 @@ export class ReplicateImageGenerator {
 
   private async convertUrlToDataUrl(imageUrl: string): Promise<string> {
     try {
-      console.log('Converting image URL to data URL:', imageUrl);
-      
       const response = await fetch(imageUrl);
       
       if (!response.ok) {
@@ -140,11 +130,9 @@ export class ReplicateImageGenerator {
       const mimeType = blob.type || 'image/jpeg';
       const dataUrl = `data:${mimeType};base64,${base64}`;
       
-      console.log('Successfully converted to data URL, length:', dataUrl.length);
       return dataUrl;
     } catch (error) {
       console.error('Failed to convert URL to data URL:', error);
-      console.log('Falling back to original URL:', imageUrl);
       // Return the original URL as fallback
       return imageUrl;
     }

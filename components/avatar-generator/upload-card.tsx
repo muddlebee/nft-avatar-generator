@@ -13,10 +13,17 @@ export function UploadCard({
   baseImage, 
   onImageUpload, 
   uploadError, 
-  isGenerating 
+  isGenerating,
+  referralCode,
+  referralCodeValidated,
+  referralCodeTier,
+  maxAttempts,
+  attemptsUsed,
+  onReferralCodeValidate
 }: UploadCardProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [referralCodeInput, setReferralCodeInput] = useState("");
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -78,6 +85,15 @@ export function UploadCard({
   const clearImage = useCallback(() => {
     onImageUpload(null as any, "");
   }, [onImageUpload]);
+
+  const handleReferralCodeSubmit = useCallback(() => {
+    if (referralCodeInput.trim()) {
+      const isValid = onReferralCodeValidate(referralCodeInput.trim());
+      if (isValid) {
+        setReferralCodeInput("");
+      }
+    }
+  }, [referralCodeInput, onReferralCodeValidate]);
 
   return (
     <Card className="w-full">
@@ -157,6 +173,54 @@ export function UploadCard({
             <p className="text-sm text-destructive">{uploadError}</p>
           </div>
         )}
+
+        {/* Referral Code Section */}
+        <div className="mt-4 pt-4 border-t border-border">
+          {!referralCodeValidated ? (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Enter Referral Code
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={referralCodeInput}
+                  onChange={(e) => setReferralCodeInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleReferralCodeSubmit()}
+                  disabled={isGenerating}
+                  className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
+                />
+                <button
+                  onClick={handleReferralCodeSubmit}
+                  disabled={!referralCodeInput.trim() || isGenerating}
+                  className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Validate
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className={`text-sm font-medium ${attemptsUsed >= maxAttempts ? 'text-red-600' : 'text-green-600'}`}>
+                  {attemptsUsed >= maxAttempts ? '⚠️' : '✓'} {referralCodeTier} Code {attemptsUsed >= maxAttempts ? 'Exhausted' : 'Validated'}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {attemptsUsed}/{maxAttempts} attempts used
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-300 ${attemptsUsed >= maxAttempts ? 'bg-red-500' : 'bg-green-500'}`}
+                  style={{ width: `${(attemptsUsed / maxAttempts) * 100}%` }}
+                ></div>
+              </div>
+              <p className={`text-xs ${attemptsUsed >= maxAttempts ? 'text-red-600' : 'text-muted-foreground'}`}>
+                {attemptsUsed >= maxAttempts ? 'No attempts remaining' : `${maxAttempts - attemptsUsed} attempts remaining`}
+              </p>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

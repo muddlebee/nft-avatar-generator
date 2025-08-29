@@ -39,6 +39,12 @@ export interface UploadCardProps {
   onImageUpload: (file: File, dataUrl: string) => void;
   uploadError: string | null;
   isGenerating: boolean;
+  referralCode: string;
+  referralCodeValidated: boolean;
+  referralCodeTier: string;
+  maxAttempts: number;
+  attemptsUsed: number;
+  onReferralCodeValidate: (code: string) => boolean;
 }
 
 export interface TraitSidebarProps {
@@ -59,6 +65,10 @@ export interface PreviewPaneProps {
   onGenerate: () => void;
   onLock: () => void;
   onMint: () => void;
+  referralCodeValidated: boolean;
+  referralCodeTier: string;
+  attemptsUsed: number;
+  maxAttempts: number;
 }
 
 

@@ -4,32 +4,32 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
   {
     key: "headgear",
     label: "Headgear",
-    options: ["none", "beanie", "samurai helmet", "crown", "cap", "bandana"]
+    options: ["beanie", "samurai helmet", "crown", "cap", "headphones", "witch hat", "baseball cap", "bandana"]
   },
   {
     key: "accessory", 
     label: "Face Accessory",
-    options: ["none", "round glasses", "visor", "halo", "sunglasses", "monocle"]
+    options: ["round glasses", "visor", "halo", "sunglasses", "eyepatch", "mustache", "cigarette", "tattoo"]
   },
   {
     key: "clothing",
     label: "Clothing", 
-    options: ["hoodie", "leather jacket", "wizard robe", "armor", "t-shirt", "formal suit"]
+    options: ["hoodie", "leather jacket", "wizard robe", "armor", "t-shirt", "formal suit", "kimono", "lab coat"]
   },
   {
     key: "expression",
     label: "Expression",
-    options: ["neutral", "smirk", "determined", "happy", "serious", "playful"]
+    options: ["neutral", "smirk", "determined", "happy", "serious", "playful", "angry", "surprised"]
   },
-  {
+/*   {
     key: "special",
     label: "Special Features",
     options: ["none", "wings", "aura", "glow", "sparkles", "shadow", "fire", "ice"]
-  },
+  }, */
   {
     key: "weapon",
     label: "Weapon/Equipment",
-    options: ["none", "sword", "staff", "gun", "bow", "shield", "magic orb", "dagger"]
+    options: ["sword", "staff", "gun", "bow", "shield", "magic orb", "dagger", "axe"]
   }
 ];
 
