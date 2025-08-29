@@ -1,28 +1,12 @@
-import { fontUnbounded } from "@/fonts";
-import { cn } from "@/lib/utils";
-import { Link } from "@/components/ui/link";
-import { ChainInfoCards } from "@/components/info-cards/chain-info-cards";
-import { AccountInfoCards } from "@/components/info-cards/account-info-cards";
-import { ExtrinsicInfoCards } from "@/components/info-cards/extrinsic-info-cards";
+import { AvatarGeneratorClient } from "@/components/avatar-generator/avatar-generator-client";
 
 export default async function Home() {
   return (
-    <main className="flex min-h-screen p-6 sm:p-8 pb-20 flex-col gap-[32px] row-start-2 items-center relative">
-      <h1
-        className={cn(
-          "text-5xl lg:text-6xl font-light pt-10",
-          fontUnbounded.className,
-        )}
-      >
-        Polkadot Next.js Starter
-      </h1>
-      <p className="text-center text-muted-foreground text-lg">
-        A starter project for your next Polkadot dApp.
-      </p>
-
-      <ChainInfoCards />
-      <AccountInfoCards />
-      <ExtrinsicInfoCards />
+    <main className="min-h-screen bg-background">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        <AvatarGeneratorClient />
+      </div>
     </main>
   );
 }

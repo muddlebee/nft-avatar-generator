@@ -11,6 +11,7 @@
     "add-papi-demo-data": "pnpm papi add --skip-codegen -n paseo paseo && pnpm papi add --skip-codegen -n polkadot polkadot && pnpm papi add --skip-codegen -n paseo_asset_hub paseo_asset_hub && pnpm papi add --skip-codegen -n polkadot_asset_hub polkadot_asset_hub && pnpm papi"
   },
   "dependencies": {
+    "@google/genai": "^1.16.0",
     "@polkadot-api/descriptors": "file:.papi/descriptors",
     "@polkadot/react-identicon": "^3.15.3",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -25,12 +26,15 @@
     "clsx": "^2.1.1",
     "detect-browser": "^5.3.0",
     "framer-motion": "^12.23.12",
+    "install": "^0.13.0",
     "lucide-react": "^0.483.0",
+    "mime": "^4.0.7",
     "next": "15.4.5",
     "next-themes": "^0.4.6",
     "polkadot-api": "^1.15.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "replicate": "^1.1.0",
     "rxjs": "^7.8.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",

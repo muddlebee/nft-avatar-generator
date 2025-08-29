@@ -11,8 +11,8 @@ import { PolkadotProvider } from "@/providers/polkadot-provider";
 import { ClientProvider } from "@/providers/client-provider";
 
 export const metadata: Metadata = {
-  title: "Polkadot Next.js Starter",
-  description: "A starter project for building Polkadot dApps with Next.js.",
+  title: "NFT Avatar Generator - Polkadot",
+  description: "Create unique NFT avatars with customizable traits on the Polkadot network.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
         <ClientProvider defaultChainId="polkadot">
           <NavBar />
           <main className="min-h-screen">{children}</main>
-          <Footer />
+          {/* <Footer /> */}
           <ChainInfo />
           <Toaster position="bottom-center" icons={{ loading: <Loader /> }} />
         </ClientProvider>
