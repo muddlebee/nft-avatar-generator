@@ -110,7 +110,7 @@ export function UploadCard({
               <img
                 src={baseImage}
                 alt="Base avatar"
-                className="w-full h-48 object-cover rounded-lg border"
+                className="w-full h-48 object-contain rounded-lg border bg-muted/30"
               />
               <button
                 onClick={clearImage}

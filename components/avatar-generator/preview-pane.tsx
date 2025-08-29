@@ -68,7 +68,7 @@ export function PreviewPane({
               <img
                 src={baseImage}
                 alt="Base avatar"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain bg-muted/20"
               />
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <div className="text-center text-white space-y-2">
