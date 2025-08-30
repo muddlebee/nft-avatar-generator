@@ -45,7 +45,11 @@ export function TraitSidebar({
                 return (
                   <button
                     key={option}
-                    onClick={() => onTraitChange(category.key as keyof TraitSelection, option)}
+                    onClick={() => {
+                      // If already selected, deselect (set to null), otherwise select the option
+                      const newValue = isSelected ? null : option;
+                      onTraitChange(category.key as keyof TraitSelection, newValue);
+                    }}
                     disabled={isGenerating}
                     className={cn(
                       "p-2 text-left rounded-md border transition-all text-xs",

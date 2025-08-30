@@ -5,15 +5,15 @@ export interface TraitCategory {
 }
 
 export interface TraitSelection {
-  headgear: string;
-  accessory: string;
-  clothing: string;
-  background: string;
-  expression: string;
-  hair: string;
-  skin: string;
-  special: string;
-  weapon: string;
+  headgear: string | null;
+  accessory: string | null;
+  clothing: string | null;
+  background: string | null;
+  expression: string | null;
+  hair: string | null;
+  skin: string | null;
+  special: string | null;
+  weapon: string | null;
 }
 
 export interface GeneratedVariant {
@@ -50,7 +50,7 @@ export interface UploadCardProps {
 
 export interface TraitSidebarProps {
   selectedTraits: TraitSelection;
-  onTraitChange: (category: keyof TraitSelection, value: string) => void;
+  onTraitChange: (category: keyof TraitSelection, value: string | null) => void;
   onRandomize: () => void;
   isGenerating: boolean;
 }

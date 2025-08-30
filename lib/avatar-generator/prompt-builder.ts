@@ -7,7 +7,7 @@ const NEGATIVE_PROMPT = "blurry, overexposed, low quality, watermark, text, sign
 export function buildPrompt(traits: TraitSelection): string {
   const traitParts: string[] = [];
   
-  // Add traits to prompt, skipping "none" values
+  // Add traits to prompt, skipping null, undefined, and "none" values
   if (traits.headgear && traits.headgear !== "none") {
     traitParts.push(traits.headgear);
   }
@@ -27,6 +27,22 @@ export function buildPrompt(traits: TraitSelection): string {
   
   if (traits.expression && traits.expression !== "neutral") {
     traitParts.push(traits.expression);
+  }
+  
+  if (traits.weapon) {
+    traitParts.push(traits.weapon);
+  }
+  
+  if (traits.hair) {
+    traitParts.push(`${traits.hair} hair`);
+  }
+  
+  if (traits.skin) {
+    traitParts.push(`${traits.skin} skin`);
+  }
+  
+  if (traits.special && traits.special !== "none") {
+    traitParts.push(traits.special);
   }
   
   // Combine base prompt with traits

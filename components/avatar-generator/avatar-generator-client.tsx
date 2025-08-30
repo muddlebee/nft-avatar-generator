@@ -64,7 +64,7 @@ export function AvatarGeneratorClient() {
     }));
   }, []);
 
-  const handleTraitChange = useCallback((category: keyof TraitSelection, value: string) => {
+  const handleTraitChange = useCallback((category: keyof TraitSelection, value: string | null) => {
     setState(prev => ({
       ...prev,
       selectedTraits: {
