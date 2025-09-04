@@ -297,7 +297,7 @@ export function AvatarGeneratorClient() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       {/* Left Column - Controls */}
-      <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
+      <div className="lg:col-span-2 space-y-6 order-1 lg:order-1">
         <UploadCard
           baseImage={state.baseImage}
           onImageUpload={handleImageUpload}
@@ -321,7 +321,7 @@ export function AvatarGeneratorClient() {
       </div>
 
       {/* Right Column - Preview & Actions */}
-      <div className="lg:col-span-3 order-1 lg:order-2">
+      <div className="lg:col-span-3 order-2 lg:order-2">
         <PreviewPane
           baseImage={state.baseImage}
           variants={state.variants}
