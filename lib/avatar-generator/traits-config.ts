@@ -7,13 +7,13 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
     options: ["beanie", "samurai helmet", "crown", "cap", "headphones", "witch hat", "baseball cap", "bandana"]
   },
   {
-    key: "accessory", 
+    key: "accessory",
     label: "Face Accessory",
     options: ["round glasses", "visor", "halo", "sunglasses", "eyepatch", "mustache", "cigarette", "tattoo"]
   },
   {
     key: "clothing",
-    label: "Clothing", 
+    label: "Clothing",
     options: ["hoodie", "leather jacket", "wizard robe", "armor", "t-shirt", "formal suit", "kimono", "lab coat"]
   },
   {
@@ -21,39 +21,49 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
     label: "Expression",
     options: ["neutral", "smirk", "determined", "happy", "serious", "playful", "angry", "surprised"]
   },
-/*   {
-    key: "special",
-    label: "Special Features",
-    options: ["none", "wings", "aura", "glow", "sparkles", "shadow", "fire", "ice"]
-  }, */
   {
     key: "weapon",
     label: "Weapon/Equipment",
     options: ["sword", "staff", "gun", "bow", "shield", "magic orb", "dagger", "axe"]
+  },
+  {
+    key: "special",
+    label: "Special Features",
+    options: ["none", "wings", "aura", "glow", "sparkles", "shadow", "fire", "ice"]
   }
 ];
 
 export const DEFAULT_TRAITS: TraitSelection = {
   headgear: "cap",
-  accessory: "round glasses", 
+  accessory: "round glasses",
   clothing: "hoodie",
-  background: "plain gradient",
+  background: null,
   expression: "playful",
-  hair: "short",
-  skin: "medium",
+  hair: null,
+  skin: null,
   special: null,
   weapon: "magic orb"
 };
 
 export function getRandomTraits(): TraitSelection {
-  const randomTraits: TraitSelection = {} as TraitSelection;
-  
+  const randomTraits: TraitSelection = {
+    headgear: null,
+    accessory: null,
+    clothing: null,
+    background: null,
+    expression: null,
+    hair: null,
+    skin: null,
+    special: null,
+    weapon: null
+  };
+
   TRAIT_CATEGORIES.forEach(category => {
     const options = category.options;
     const randomIndex = Math.floor(Math.random() * options.length);
     randomTraits[category.key as keyof TraitSelection] = options[randomIndex];
   });
-  
+
   return randomTraits;
 }
 

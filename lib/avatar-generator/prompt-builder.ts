@@ -1,49 +1,20 @@
 import { TraitSelection } from "@/components/avatar-generator/types";
+import { TRAIT_CATEGORIES } from "./traits-config";
 
-// const BASE_PROMPT = "cartoon avatar of a flame-headed character with big round black eyes, wearing a hoodie";
 const BASE_PROMPT = "character wearing a ";
 const NEGATIVE_PROMPT = "blurry, overexposed, low quality, watermark, text, signature, distorted, malformed";
 
 export function buildPrompt(traits: TraitSelection): string {
   const traitParts: string[] = [];
   
-  // Add traits to prompt, skipping null, undefined, and "none" values
-  if (traits.headgear && traits.headgear !== "none") {
-    traitParts.push(traits.headgear);
-  }
-  
-  if (traits.clothing && traits.clothing !== "hoodie") {
-    // Replace default hoodie if different clothing selected
-    traitParts.push(`wearing ${traits.clothing}`);
-  }
-  
-  if (traits.accessory && traits.accessory !== "none") {
-    traitParts.push(traits.accessory);
-  }
-  
-  if (traits.background && traits.background !== "plain gradient") {
-    traitParts.push(`${traits.background} background`);
-  }
-  
-  if (traits.expression && traits.expression !== "neutral") {
-    traitParts.push(traits.expression);
-  }
-  
-  if (traits.weapon) {
-    traitParts.push(traits.weapon);
-  }
-  
-  if (traits.hair) {
-    traitParts.push(`${traits.hair} hair`);
-  }
-  
-  if (traits.skin) {
-    traitParts.push(`${traits.skin} skin`);
-  }
-  
-  if (traits.special && traits.special !== "none") {
-    traitParts.push(traits.special);
-  }
+  // Only process traits from selectable categories
+  TRAIT_CATEGORIES.forEach(category => {
+    const traitValue = traits[category.key as keyof TraitSelection];
+    
+    if (traitValue && traitValue !== "none") {
+      traitParts.push(traitValue);
+    }
+  });
   
   // Combine base prompt with traits
   let fullPrompt = BASE_PROMPT;
