@@ -41,7 +41,7 @@ export const DEFAULT_TRAITS: TraitSelection = {
   expression: "playful",
   hair: "short",
   skin: "medium",
-  special: "wings",
+  special: null,
   weapon: "magic orb"
 };
 
