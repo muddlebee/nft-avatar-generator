@@ -1,8 +1,11 @@
 import { ThemeToggle } from "./theme-toggle";
 import { ChainSelect } from "../chain/chain-select";
 import { WalletSelect } from "../account/wallet-select";
+import { WalletConnectorModal } from "../wallet/wallet-connector-modal";
 import { fontUnbounded } from "@/fonts";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Button } from "../ui/button";
 
 export interface NavItem {
   title: string;
@@ -32,6 +35,12 @@ export function NavBar() {
           
           {/* Controls */}
           <div className="flex gap-2 items-center ml-6">
+            <Link href="/signing-demo">
+              <Button variant="outline" size="sm">
+                Signing Demo
+              </Button>
+            </Link>
+            <WalletConnectorModal />
             <ThemeToggle />
 {/*             <ChainSelect />
             <WalletSelect /> */}

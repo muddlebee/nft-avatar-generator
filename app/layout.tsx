@@ -7,8 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { Loader } from "lucide-react";
 import type { Metadata } from "next";
 import "./globals.css";
-import { PolkadotProvider } from "@/providers/polkadot-provider";
-import { ClientProvider } from "@/providers/client-provider";
+import { HybridProvider } from "@/providers/hybrid-provider";
 
 export const metadata: Metadata = {
   title: "NFT Avatar Generator - Polkadot",
@@ -25,14 +24,14 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-[family-name:var(--font-sans)] antialiased`}
       >
-        <ClientProvider defaultChainId="polkadot">
+        <HybridProvider>
           <NavBar />
           <main className="min-h-screen">{children}</main>
           {/* <Footer /> 
           <ChainInfo />
           */}
           <Toaster position="bottom-center" icons={{ loading: <Loader /> }} />
-        </ClientProvider>
+        </HybridProvider>
         <Analytics />
       </body>
     </html>

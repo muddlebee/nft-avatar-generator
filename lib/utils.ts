@@ -10,6 +10,11 @@ export function trimAddress(address: string, length?: number) {
   return `${address.slice(0, length)}...${address.slice(-length)}`;
 }
 
+export function shortenAddress(address: string, length?: number) {
+  if (!length) length = 4;
+  return `${address.slice(0, length)}...${address.slice(-length)}`;
+}
+
 export function stringifyWithBigInt(obj: any) {
   return JSON.stringify(obj, (key, value) =>
     typeof value === "bigint" ? value.toString() : value
