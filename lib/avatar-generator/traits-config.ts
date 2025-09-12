@@ -29,7 +29,7 @@ export const TRAIT_CATEGORIES: TraitCategory[] = [
   {
     key: "special",
     label: "Special Features",
-    options: ["none", "wings", "aura", "glow", "sparkles", "shadow", "fire", "ice"]
+    options: ["lightning", "wings", "aura", "glow", "sparkles", "shadow", "fire", "ice"]
   }
 ];
 
