@@ -28,9 +28,9 @@ export interface AvatarGeneratorState {
   baseImage: string | null;
   baseImageFile: File | null;
   selectedTraits: TraitSelection;
-  variants: GeneratedVariant[];
+  variants: MintableVariant[];  // Updated to use MintableVariant
   isGenerating: boolean;
-  lockedVariant: GeneratedVariant | null;
+  lockedVariant: MintableVariant | null;  // Updated to use MintableVariant
   uploadError: string | null;
 }
 
@@ -81,17 +81,54 @@ export interface IPFSUploadResult {
   metadataGatewayUrl: string;
 }
 
+// NFT Minting progress and result types
+export interface MintingProgress {
+  step: 'idle' | 'uploading-image' | 'uploading-metadata' | 'getting-item-id' | 'creating-transaction' | 'signing' | 'broadcasting' | 'in-block' | 'finalized' | 'error';
+  message: string;
+  progress: number; // 0-100
+  txHash?: string;
+  blockHash?: string;
+  itemId?: number;
+  error?: string;
+  ipfsData?: {
+    imageCID: string;
+    metadataCID: string;
+    imageGatewayUrl: string;
+    metadataGatewayUrl: string;
+  };
+}
+
+export interface MintingResult {
+  success: boolean;
+  itemId?: number;
+  txHash?: string;
+  blockHash?: string;
+  error?: string;
+  ipfsData?: {
+    imageCID: string;
+    metadataCID: string;
+    imageGatewayUrl: string;
+    metadataGatewayUrl: string;
+  };
+}
+
+export interface MintableVariant extends GeneratedVariant {
+  mintingProgress?: MintingProgress;
+  mintingResult?: MintingResult;
+  isMinting?: boolean;
+}
+
 export interface PreviewPaneProps {
   baseImage: string | null;
-  variants: GeneratedVariant[];
-  lockedVariant: GeneratedVariant | null;
-  onVariantSelect: (variant: GeneratedVariant) => void;
+  variants: MintableVariant[];  // Updated to use MintableVariant
+  lockedVariant: MintableVariant | null;  // Updated to use MintableVariant
+  onVariantSelect: (variant: MintableVariant) => void;  // Updated to use MintableVariant
   isGenerating: boolean;
   canGenerate: boolean;
   hasVariants: boolean;
   onGenerate: () => void;
   onLock: () => void;
-  onMint: () => void;
+  onMint: (variant: MintableVariant) => Promise<void>;  // Updated signature for async minting
   referralCodeValidated: boolean;
   referralCodeTier: string;
   attemptsUsed: number;

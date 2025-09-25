@@ -3,8 +3,13 @@
 import { Download, Sparkles, Eye, Wand2, Coins, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import type { PreviewPaneProps } from "./types";
+import { useWallets } from "@kheopskit/react";
+import { useNFTMinting } from "@/hooks/use-nft-minting";
+import { MintingProgress } from "./minting-progress";
+import type { PreviewPaneProps, MintingProgress as MintingProgressType } from "./types";
 
 export function PreviewPane({ 
   baseImage, 
@@ -22,7 +27,22 @@ export function PreviewPane({
   attemptsUsed,
   maxAttempts
 }: PreviewPaneProps) {
+  const { accounts } = useWallets();
+  const { mintNFT, isConfigured, configStatus } = useNFTMinting();
+  
+  const [showMintingProgress, setShowMintingProgress] = useState(false);
+  const [mintingProgress, setMintingProgress] = useState<MintingProgressType>({
+    step: 'idle',
+    message: '',
+    progress: 0
+  });
+
   const selectedVariant = lockedVariant || variants[0];
+  const polkadotAccount = accounts.find(acc => acc.platform === 'polkadot');
+  
+  // TEMPORARY: Allow minting with just base image for testing
+  const hasTestableImage = baseImage || selectedVariant;
+  const canMint = hasTestableImage && polkadotAccount && isConfigured;
 
   const getGenerateButtonText = () => {
     if (isGenerating) return "Generating...";
@@ -33,6 +53,60 @@ export function PreviewPane({
   const getGenerateButtonIcon = () => {
     if (isGenerating) return <Loader2 className="w-4 h-4 animate-spin" />;
     return <Wand2 className="w-4 h-4" />;
+  };
+
+  const handleMintNFT = async () => {
+    if (!canMint) return;
+
+    // TEMPORARY: Use base image or variant for testing
+    const imageToMint = lockedVariant?.url || selectedVariant?.url || baseImage;
+    const traitsToUse = lockedVariant?.traits || selectedVariant?.traits || {
+      headgear: 'None',
+      accessory: 'None', 
+      clothing: 'Default',
+      background: 'Plain',
+      expression: 'Neutral',
+      hair: 'Default',
+      skin: 'Default',
+      special: null,
+      weapon: null
+    };
+    const seedToUse = lockedVariant?.seed || selectedVariant?.seed || Math.floor(Math.random() * 10000);
+
+    if (!imageToMint) {
+      console.error('No image available for minting');
+      return;
+    }
+
+    setShowMintingProgress(true);
+    setMintingProgress({
+      step: 'uploading-image',
+      message: 'Starting NFT minting process...',
+      progress: 5
+    });
+
+    try {
+      const result = await mintNFT(
+        imageToMint,
+        traitsToUse,
+        seedToUse,
+        setMintingProgress
+      );
+      
+      console.log('NFT minted successfully:', result);
+    } catch (error) {
+      console.error('NFT minting failed:', error);
+      // Error handling is done in the mintNFT function
+    }
+  };
+
+  const handleCloseProgress = () => {
+    setShowMintingProgress(false);
+    setMintingProgress({
+      step: 'idle',
+      message: '',
+      progress: 0
+    });
   };
 
   return (
@@ -115,36 +189,61 @@ export function PreviewPane({
 
           {/* Download & Mint Buttons */}
           {hasVariants && (
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                onClick={() => {
-                  if (selectedVariant?.url) {
-                    const link = document.createElement('a');
-                    link.href = selectedVariant.url;
-                    link.download = `avatar-${selectedVariant.seed}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }
-                }}
-                disabled={!hasVariants || isGenerating}
-                variant="outline"
-                size="lg"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Download
-              </Button>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  onClick={() => {
+                    if (selectedVariant?.url) {
+                      const link = document.createElement('a');
+                      link.href = selectedVariant.url;
+                      link.download = `avatar-${selectedVariant.seed}.png`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }
+                  }}
+                  disabled={!hasVariants || isGenerating}
+                  variant="outline"
+                  size="lg"
+                  className="flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </Button>
 
+                {/* Lock Variant Button */}
+                <Button
+                  onClick={() => selectedVariant && onVariantSelect(selectedVariant)}
+                  disabled={!selectedVariant || !!lockedVariant || isGenerating}
+                  variant="secondary"
+                  size="lg"
+                  className="flex items-center gap-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  {lockedVariant ? 'Locked' : 'Lock'}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* TEMPORARY: Test Mint NFT Button - Show for any uploaded image */}
+          {hasTestableImage && (
+            <div className="space-y-2">
+              {/* Testing Mode Banner */}
+              <div className="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-700 text-center font-medium">
+                  🧪 Testing Mode: Mint NFT with uploaded image
+                </p>
+              </div>
+              
               <Button
-                onClick={onMint}
-                disabled={true}
-                variant="outline"
+                onClick={handleMintNFT}
+                disabled={!canMint || mintingProgress.step !== 'idle'}
                 size="lg"
-                className="flex items-center gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold"
               >
-                <Coins className="w-4 h-4" />
-                Mint NFT
+                <Coins className="w-4 h-4 mr-2" />
+                {mintingProgress.step !== 'idle' ? 'Minting...' : 'Test Mint NFT on Paseo'}
               </Button>
             </div>
           )}
@@ -175,9 +274,28 @@ export function PreviewPane({
             </p>
           )}
           
-          {hasVariants && (
+          {/* TEMPORARY: Testing mode messages */}
+          {hasTestableImage && !polkadotAccount && (
+            <p className="text-xs text-amber-600">
+              Connect a Polkadot wallet to test NFT minting
+            </p>
+          )}
+          
+          {hasTestableImage && polkadotAccount && !isConfigured && (
+            <p className="text-xs text-red-600">
+              NFT minting not configured (missing collection ID or IPFS key)
+            </p>
+          )}
+          
+          {hasTestableImage && canMint && (
+            <p className="text-xs text-green-600">
+              🧪 Ready to test NFT minting on Paseo testnet
+            </p>
+          )}
+          
+          {!hasTestableImage && (
             <p className="text-xs text-muted-foreground">
-              Download your avatar or mint it as an NFT
+              Upload an image to test NFT minting
             </p>
           )}
           
@@ -188,6 +306,16 @@ export function PreviewPane({
           )}
         </div>
       </CardContent>
+      
+      {/* Minting Progress Modal */}
+      <Dialog open={showMintingProgress} onOpenChange={setShowMintingProgress}>
+        <DialogContent className="sm:max-w-md">
+          <MintingProgress 
+            progress={mintingProgress}
+            onClose={mintingProgress.step === 'finalized' || mintingProgress.step === 'error' ? handleCloseProgress : undefined}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
