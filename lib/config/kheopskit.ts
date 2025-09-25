@@ -63,6 +63,27 @@ export const paseo = defineChain({
   caipNetworkId: "polkadot:67f9723393ef76214df0118c34bbbd3d",
 });
 
+//add dummy for paseo_asset_hub
+export const paseoAssetHub = defineChain({
+  id: "d6eec26135305a8ad257a20d00335728", 
+  name: "Paseo Asset Hub",
+  nativeCurrency: { name: "Paseo", symbol: "PAS", decimals: 10 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.ibp.network/paseo"],
+      webSocket: ["wss://rpc.ibp.network/paseo"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Paseo Asset Hub Explorer",
+      url: "https://paseo-asset-hub.subscan.io/",
+    },
+  },
+  chainNamespace: "polkadot",
+  caipNetworkId: "polkadot:d6eec26135305a8ad257a20d00335728",
+});
+
 // Ethereum chains
 export const sepolia = defineChain({
   id: "11155111",
