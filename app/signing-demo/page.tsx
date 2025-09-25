@@ -6,16 +6,23 @@ import { Card } from "@/components/ui/card";
 import { KheopskitAccountDropdown } from "@/components/account/kheopskit-account-dropdown";
 import { useWallets } from "@kheopskit/react";
 import { toast } from "sonner";
-import { ArrowLeft, FileSignature, Hash } from "lucide-react";
+import { ArrowLeft, FileSignature, Hash, Send } from "lucide-react";
 import Link from "next/link";
+import { paseoAssetHub } from "@/lib/config/kheopskit";
+import { paseo, polkadot } from "@polkadot-api/descriptors";
+import { createClient, Binary } from "polkadot-api";
+import { getWsProvider } from "polkadot-api/ws-provider/web";
 
 export default function SigningDemo() {
   const { accounts } = useWallets();
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [customMessage, setCustomMessage] = useState("Hello from Kheopskit!");
   const [customPayload, setCustomPayload] = useState("0x48656c6c6f20576f726c64"); // "Hello World" in hex
+  const [remarkMessage, setRemarkMessage] = useState("Hello from Polkadot-API!");
+  const [selectedNetwork, setSelectedNetwork] = useState<"polkadot" | "paseo">("paseo");
   const [isSigningMessage, setIsSigningMessage] = useState(false);
   const [isSigningPayload, setIsSigningPayload] = useState(false);
+  const [isSubmittingRemark, setIsSubmittingRemark] = useState(false);
 
   const selectedAccount = selectedAccountId 
     ? accounts.find(account => account.id === selectedAccountId)
@@ -103,6 +110,109 @@ export default function SigningDemo() {
       console.error("Signing error:", error);
     } finally {
       setIsSigningPayload(false);
+    }
+  };
+
+  const handleSubmitSystemRemark = async () => {
+    if (!selectedAccount) {
+      toast.error("Please select an account first");
+      return;
+    }
+
+    if (selectedAccount.platform !== "polkadot") {
+      toast.error("System remarks are only available for Polkadot accounts");
+      return;
+    }
+
+    if (!remarkMessage.trim()) {
+      toast.error("Please enter a remark message");
+      return;
+    }
+
+    setIsSubmittingRemark(true);
+
+    try {
+      // Create client for the selected network
+      const provider = getWsProvider(
+        selectedNetwork === "polkadot" 
+          ? "wss://rpc.ibp.network/polkadot"
+          : "wss://rpc.ibp.network/paseo"
+      );
+      
+      const client = createClient(provider);
+      const descriptor = selectedNetwork === "polkadot" ? polkadot : paseo;
+      const typedApi = client.getTypedApi(descriptor);
+
+      // Check account balance first
+      try {
+        const accountInfo = await typedApi.query.System.Account.getValue(selectedAccount.address);
+        const freeBalance = accountInfo?.data.free || 0n;
+        
+        if (freeBalance === 0n) {
+          toast.error(`No balance found. Please add some ${selectedNetwork === "polkadot" ? "DOT" : "PAS"} tokens to your account.`);
+          return;
+        }
+        
+        console.log(`Account balance: ${freeBalance.toString()} (${selectedNetwork === "polkadot" ? "DOT" : "PAS"})`);
+      } catch (balanceError) {
+        console.warn("Could not check balance:", balanceError);
+      }
+
+      // Create the remark transaction
+      const remarkBytes = new TextEncoder().encode(remarkMessage);
+      const tx = typedApi.tx.System.remark({ remark: Binary.fromBytes(remarkBytes) });
+
+      // Get transaction fee estimate
+      try {
+        const paymentInfo = await tx.getEstimatedFees(selectedAccount.address);
+        console.log("Estimated transaction fee:", paymentInfo);
+      } catch (feeError) {
+        console.warn("Could not estimate fees:", feeError);
+      }
+
+      toast.info("Submitting transaction...");
+
+      // Submit and watch the transaction
+      const result = await tx.signSubmitAndWatch(selectedAccount.polkadotSigner);
+
+      console.log("Transaction submitted, watching for events...");
+
+      // Wait for finalization
+      result.subscribe({
+        next: (event) => {
+          console.log("Transaction Event:", event);
+          if (event.type === "finalized") {
+            if (event.ok) {
+              toast.success(`Transaction finalized in block: ${event.block.hash}`);
+            } else {
+              toast.error(`Transaction failed: ${event.dispatchError?.type || "Unknown error"}`);
+              console.error("Dispatch Error:", event.dispatchError);
+            }
+          } else {
+            // Log other transaction events
+            console.log(`Transaction event: ${event.type}`);
+          }
+        },
+        error: (error) => {
+          console.error("Transaction error:", error);
+          if (error.type === "Invalid" && error.value?.type === "Payment") {
+            toast.error(`Insufficient balance to pay transaction fees. Please add more ${selectedNetwork === "polkadot" ? "DOT" : "PAS"} tokens.`);
+          } else {
+            toast.error(`Transaction failed: ${error.message || "Unknown error"}`);
+          }
+        }
+      });
+
+    } catch (error: any) {
+      console.error("System remark error:", error);
+      
+      if (error.type === "Invalid" && error.value?.type === "Payment") {
+        toast.error(`Insufficient balance to pay transaction fees. Please add more ${selectedNetwork === "polkadot" ? "DOT" : "PAS"} tokens to your account.`);
+      } else {
+        toast.error(`Failed to submit remark: ${error.message || "Unknown error"}`);
+      }
+    } finally {
+      setIsSubmittingRemark(false);
     }
   };
 
@@ -205,6 +315,63 @@ export default function SigningDemo() {
           </div>
         </Card>
 
+        {/* System Remark Transaction */}
+        <Card className="p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Send className="h-5 w-5" />
+            4. Submit System Remark (Polkadot-API)
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Network:</label>
+              <select
+                className="w-full p-3 border rounded-md bg-background"
+                value={selectedNetwork}
+                onChange={(e) => setSelectedNetwork(e.target.value as "polkadot" | "paseo")}
+              >
+                <option value="paseo">Paseo Testnet</option>
+                <option value="polkadot">Polkadot Mainnet</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Remark Message:</label>
+              <textarea
+                className="w-full p-3 border rounded-md bg-background"
+                rows={3}
+                value={remarkMessage}
+                onChange={(e) => setRemarkMessage(e.target.value)}
+                placeholder="Enter your remark message..."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                This will be stored on-chain as a system remark
+              </p>
+            </div>
+            <Button 
+              onClick={handleSubmitSystemRemark}
+              disabled={!selectedAccount || selectedAccount.platform !== "polkadot" || !remarkMessage.trim() || isSubmittingRemark}
+              className="w-full"
+            >
+              {isSubmittingRemark ? "Submitting..." : "Submit System Remark"}
+            </Button>
+            {selectedAccount && selectedAccount.platform !== "polkadot" && (
+              <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                System remarks require a Polkadot account. Please connect a Polkadot wallet.
+              </p>
+            )}
+            
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg mt-4">
+              <h4 className="font-medium text-sm mb-2">Need Testnet Tokens?</h4>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <div><strong>Paseo (PAS):</strong> Get free tokens from <a href="https://faucet.polkadot.io/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Polkadot Faucet</a></div>
+                <div><strong>Polkadot (DOT):</strong> Real tokens required - use exchanges or other sources</div>
+                <div className="mt-2 text-amber-600 dark:text-amber-400">
+                  ⚠️ Ensure your account has sufficient balance to pay transaction fees
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Instructions */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Instructions</h2>
@@ -219,10 +386,13 @@ export default function SigningDemo() {
               <strong>3. Test Signing:</strong> Try signing both text messages and raw hex payloads.
             </div>
             <div>
-              <strong>4. Check Console:</strong> Open browser DevTools console to see the full signature outputs.
+              <strong>4. Submit System Remark:</strong> Test on-chain transactions using polkadot-api (Polkadot accounts only).
+            </div>
+            <div>
+              <strong>5. Check Console:</strong> Open browser DevTools console to see the full signature outputs and transaction events.
             </div>
             <div className="p-3 bg-muted/50 rounded-lg mt-4">
-              <strong>Note:</strong> Signatures will appear in the browser console. For production use, you would handle these signatures according to your application's needs.
+              <strong>Note:</strong> Signatures will appear in the browser console. System remarks will be submitted to the actual blockchain network. Transaction events and results are logged to the console.
             </div>
           </div>
         </Card>
