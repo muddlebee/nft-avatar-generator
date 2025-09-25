@@ -55,6 +55,32 @@ export interface TraitSidebarProps {
   isGenerating: boolean;
 }
 
+// NFT and IPFS related types
+export interface NFTMetadata {
+  name: string;
+  description: string;
+  image: string; // ipfs://CID
+  attributes: Array<{
+    trait_type: string;
+    value: string;
+  }>;
+  properties: {
+    model: string;
+    seed: number;
+    prompt_sha256: string;
+    generator: string;
+    created_at: string;
+  };
+}
+
+export interface IPFSUploadResult {
+  imageCID: string;
+  metadataCID: string;
+  metadata: NFTMetadata;
+  imageGatewayUrl: string;
+  metadataGatewayUrl: string;
+}
+
 export interface PreviewPaneProps {
   baseImage: string | null;
   variants: GeneratedVariant[];

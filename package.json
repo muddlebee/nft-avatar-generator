@@ -8,12 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "",
-    "add-papi-demo-data": "pnpm papi add --skip-codegen -n paseo paseo && pnpm papi add --skip-codegen -n polkadot polkadot && pnpm papi add --skip-codegen -n paseo_asset_hub paseo_asset_hub && pnpm papi add --skip-codegen -n polkadot_asset_hub polkadot_asset_hub && pnpm papi"
+    "add-papi-demo-data": "pnpm papi add --skip-codegen -n paseo paseo && pnpm papi add --skip-codegen -n polkadot polkadot && pnpm papi add --skip-codegen -n paseo_asset_hub paseo_asset_hub && pnpm papi add --skip-codegen -n polkadot_asset_hub polkadot_asset_hub && pnpm papi",
+    "test:ipfs": "npx tsx scripts/test-ipfs.ts"
   },
   "dependencies": {
     "@google/genai": "^1.16.0",
     "@kheopskit/core": "^0.0.21",
     "@kheopskit/react": "^0.0.25",
+    "@lighthouse-web3/sdk": "^0.4.2",
     "@polkadot-api/descriptors": "file:.papi/descriptors",
     "@polkadot/react-identicon": "^3.15.3",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -55,6 +57,7 @@
     "@types/node": "^20.19.10",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
+    "dotenv": "^17.2.2",
     "eslint": "^9.33.0",
     "eslint-config-next": "15.2.3",
     "eslint-config-prettier": "^10.1.8",
@@ -62,6 +65,7 @@
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   },
   "overrides": {
