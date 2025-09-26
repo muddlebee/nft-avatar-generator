@@ -8,6 +8,7 @@ import { useWallets } from "@kheopskit/react";
 import type { TraitSelection } from '@/components/avatar-generator/types';
 import { LighthouseStorage } from '@/lib/services/lighthouse-storage';
 import { buildPrompt } from '@/lib/avatar-generator/prompt-builder';
+import { useSelectedPolkadotAccount } from '@/providers/kheopskit-selected-account-provider';
 
 // Type definitions for polkadot-api
 type PolkadotApiClient = ReturnType<typeof createClient>;
@@ -107,6 +108,7 @@ export interface MintingResult {
 
 export function useNFTMinting() {
   const { accounts } = useWallets();
+  const selectedPolkadotAccount = useSelectedPolkadotAccount();
 
   // Configuration from environment
   const COLLECTION_ID = parseInt(process.env.NEXT_PUBLIC_NFT_COLLECTION_ID || '0');
@@ -126,31 +128,31 @@ export function useNFTMinting() {
   /**
    * Create batch transaction for mint + setMetadata
    */
-  const createMintTransaction = (
-    typedApi: PaseoAssetHubApi,
-    itemId: number,
-    ownerAddress: string,
-    metadataCID: string
-  ) => {
-    // Create individual transactions
-    const mintTx = typedApi.tx.Nfts.mint({
-      collection: COLLECTION_ID,
-      item: itemId,
-      mint_to: MultiAddress.Id(ownerAddress),
-      witness_data: undefined, // Optional witness data
-    });
+  // const createMintTransaction = (
+  //   typedApi: PaseoAssetHubApi,
+  //   itemId: number,
+  //   ownerAddress: string,
+  //   metadataCID: string
+  // ) => {
+  //   // Create individual transactions
+  //   const mintTx = typedApi.tx.Nfts.mint({
+  //     collection: COLLECTION_ID,
+  //     item: itemId,
+  //     mint_to: MultiAddress.Id(ownerAddress),
+  //     witness_data: undefined, // Optional witness data
+  //   });
 
-    const metadataTx = typedApi.tx.Nfts.set_metadata({
-      collection: COLLECTION_ID,
-      item: itemId,
-      data: Binary.fromText(`ipfs://${metadataCID}`),
-    });
+  //   const metadataTx = typedApi.tx.Nfts.set_metadata({
+  //     collection: COLLECTION_ID,
+  //     item: itemId,
+  //     data: Binary.fromText(`ipfs://${metadataCID}`),
+  //   });
 
-    // Create batch transaction with proper call structure
-    return typedApi.tx.Utility.batch_all({
-      calls: [mintTx.decodedCall, metadataTx.decodedCall]
-    });
-  };
+  //   // Create batch transaction with proper call structure
+  //   return typedApi.tx.Utility.batch_all({
+  //     calls: [mintTx.decodedCall, metadataTx.decodedCall]
+  //   });
+  // };
 
   /**
    * Complete minting flow: IPFS upload + NFT mint with progress tracking
@@ -170,10 +172,8 @@ export function useNFTMinting() {
       throw new Error('NFT_COLLECTION_ID not configured');
     }
 
-    // Find Polkadot account
-    const polkadotAccount = accounts.find(acc => acc.platform === 'polkadot');
-    if (!polkadotAccount) {
-      throw new Error('No Polkadot account connected');
+    if (!selectedPolkadotAccount) {
+      throw new Error('No Polkadot account selected. Please select an account in the wallet modal.');
     }
 
     let client: PolkadotApiClient | null = null;
@@ -247,12 +247,20 @@ export function useNFTMinting() {
         ipfsData
       });
 
-      const batchTx = createMintTransaction(
-        typedApi,
-        itemId,
-        polkadotAccount.address,
-        metadataResult.cid
-      );
+      // const batchTx = createMintTransaction(
+      //   typedApi,
+      //   itemId,
+      //   polkadotAccount.address,
+      //   metadataResult.cid
+      // );
+
+      const mintTx = typedApi.tx.Nfts.mint({
+        collection: COLLECTION_ID,
+        item: itemId,
+        mint_to: MultiAddress.Id(selectedPolkadotAccount.address),
+        witness_data: undefined, // Optional witness data
+      });
+
 
       // Step 5: Sign and submit transaction (70-80%)
       onProgressUpdate({
@@ -263,7 +271,7 @@ export function useNFTMinting() {
         ipfsData
       });
 
-      const txResult = await batchTx.signSubmitAndWatch(polkadotAccount.polkadotSigner);
+      const txResult = await mintTx.signSubmitAndWatch(selectedPolkadotAccount.polkadotSigner);
 
       onProgressUpdate({
         step: 'broadcasting',
@@ -278,7 +286,7 @@ export function useNFTMinting() {
         const subscription = txResult.subscribe({
           next: (event: any) => { // Temporarily use any to debug the event structure
             console.log('Transaction event:', event);
-            
+
             // Check if event exists and has type property
             if (!event || typeof event.type !== 'string') {
               console.warn('Invalid event structure:', event);
@@ -323,7 +331,7 @@ export function useNFTMinting() {
 
                 subscription.unsubscribe();
                 if (client) client.destroy();
-                
+
                 resolve({
                   success: true,
                   itemId,
@@ -345,7 +353,7 @@ export function useNFTMinting() {
 
                 subscription.unsubscribe();
                 if (client) client.destroy();
-                
+
                 reject(new Error(event.error));
                 break;
             }
@@ -376,11 +384,11 @@ export function useNFTMinting() {
 
     } catch (error) {
       console.error('NFT minting error:', error);
-      
+
       if (client) {
         client.destroy();
       }
-      
+
       onProgressUpdate({
         step: 'error',
         message: `Minting failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -408,6 +416,8 @@ export function useNFTMinting() {
       hasCollectionId: COLLECTION_ID > 0,
       collectionId: COLLECTION_ID,
       hasPolkadotAccount: accounts.some(acc => acc.platform === 'polkadot'),
+      hasSelectedPolkadotAccount: !!selectedPolkadotAccount,
+      selectedAccountAddress: selectedPolkadotAccount?.address,
       rpcEndpoint: RPC_ENDPOINT
     };
   };

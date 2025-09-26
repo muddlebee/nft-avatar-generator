@@ -11,10 +11,14 @@ This project uses **Kheopskit** for unified wallet management across Polkadot an
 // providers/hybrid-provider.tsx
 <ThemeProvider>
   <KheopskitClientProvider>
-    {children}
+    <KheopskitSelectedAccountProvider>
+      {children}
+    </KheopskitSelectedAccountProvider>
   </KheopskitClientProvider>
 </ThemeProvider>
 ```
+
+The `KheopskitSelectedAccountProvider` provides global account selection state that persists across components and page refreshes.
 
 ### Configuration Files
 - `lib/config/kheopskit.ts` - Main Kheopskit configuration
@@ -70,6 +74,49 @@ function MyComponent() {
   // Filter by platform
   const polkadotAccounts = accounts.filter(a => a.platform === "polkadot");
   const ethereumAccounts = accounts.filter(a => a.platform === "ethereum");
+}
+```
+
+### Using Global Selected Account (Recommended)
+```tsx
+import { useSelectedAccount, useSelectedPolkadotAccount } from "@/providers/kheopskit-selected-account-provider";
+
+function MyComponent() {
+  // Get the currently selected account across the entire app
+  const selectedAccount = useSelectedAccount();
+  
+  // Get selected account only if it's a Polkadot account (useful for NFT minting, etc.)
+  const selectedPolkadotAccount = useSelectedPolkadotAccount();
+  
+  if (!selectedPolkadotAccount) {
+    return <div>Please select a Polkadot account</div>;
+  }
+  
+  // Use the selected account for transactions
+  const handleMint = async () => {
+    const tx = await createTransaction();
+    await tx.signSubmitAndWatch(selectedPolkadotAccount.polkadotSigner);
+  };
+}
+```
+
+### Account Selection Status Component
+```tsx
+import { PolkadotAccountStatus } from "@/components/account/selected-account-status";
+
+function NFTMintingPage() {
+  return (
+    <div>
+      <h1>Mint NFT</h1>
+      
+      {/* Shows account status with helpful messages */}
+      <PolkadotAccountStatus 
+        onOpenWalletModal={() => setWalletModalOpen(true)}
+      />
+      
+      {/* Your minting UI */}
+    </div>
+  );
 }
 ```
 

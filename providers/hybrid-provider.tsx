@@ -1,6 +1,7 @@
 "use client";
 
 import { KheopskitClientProvider } from "./kheopskit-client-provider";
+import { KheopskitSelectedAccountProvider } from "./kheopskit-selected-account-provider";
 import { ThemeProvider } from "./theme-provider";
 
 export function HybridProvider({
@@ -11,7 +12,9 @@ export function HybridProvider({
   return (
     <ThemeProvider defaultTheme="light">
       <KheopskitClientProvider>
-        {children}
+        <KheopskitSelectedAccountProvider>
+          {children}
+        </KheopskitSelectedAccountProvider>
       </KheopskitClientProvider>
     </ThemeProvider>
   );

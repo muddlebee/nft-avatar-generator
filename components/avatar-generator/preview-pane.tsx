@@ -8,6 +8,8 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useWallets } from "@kheopskit/react";
 import { useNFTMinting } from "@/hooks/use-nft-minting";
+import { useSelectedPolkadotAccount, useKheopskitSelectedAccount } from "@/providers/kheopskit-selected-account-provider";
+import { PolkadotAccountStatus } from "@/components/account/selected-account-status";
 import { MintingProgress } from "./minting-progress";
 import type { PreviewPaneProps, MintingProgress as MintingProgressType } from "./types";
 
@@ -28,6 +30,7 @@ export function PreviewPane({
   maxAttempts
 }: PreviewPaneProps) {
   const { accounts } = useWallets();
+  const selectedPolkadotAccount = useSelectedPolkadotAccount();
   const { mintNFT, isConfigured, configStatus } = useNFTMinting();
   
   const [showMintingProgress, setShowMintingProgress] = useState(false);
@@ -38,11 +41,10 @@ export function PreviewPane({
   });
 
   const selectedVariant = lockedVariant || variants[0];
-  const polkadotAccount = accounts.find(acc => acc.platform === 'polkadot');
   
   // TEMPORARY: Allow minting with just base image for testing
   const hasTestableImage = baseImage || selectedVariant;
-  const canMint = hasTestableImage && polkadotAccount && isConfigured;
+  const canMint = hasTestableImage && selectedPolkadotAccount && isConfigured;
 
   const getGenerateButtonText = () => {
     if (isGenerating) return "Generating...";
@@ -56,7 +58,11 @@ export function PreviewPane({
   };
 
   const handleMintNFT = async () => {
-    if (!canMint) return;
+
+    if (!canMint) {
+      console.log('DEBUG: Cannot mint - canMint is false');
+      return;
+    }
 
     // TEMPORARY: Use base image or variant for testing
     const imageToMint = lockedVariant?.url || selectedVariant?.url || baseImage;
@@ -228,13 +234,16 @@ export function PreviewPane({
 
           {/* TEMPORARY: Test Mint NFT Button - Show for any uploaded image */}
           {hasTestableImage && (
-            <div className="space-y-2">
+            <div className="space-y-4">
               {/* Testing Mode Banner */}
               <div className="p-2 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-xs text-blue-700 text-center font-medium">
                   🧪 Testing Mode: Mint NFT with uploaded image
                 </p>
               </div>
+              
+              {/* Account Status */}
+              <PolkadotAccountStatus compact={true} />
               
               <Button
                 onClick={handleMintNFT}
@@ -245,6 +254,12 @@ export function PreviewPane({
                 <Coins className="w-4 h-4 mr-2" />
                 {mintingProgress.step !== 'idle' ? 'Minting...' : 'Test Mint NFT on Paseo'}
               </Button>
+              
+              {!selectedPolkadotAccount && (
+                <p className="text-xs text-amber-600 text-center">
+                  Select a Polkadot account to mint NFTs
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -275,13 +290,13 @@ export function PreviewPane({
           )}
           
           {/* TEMPORARY: Testing mode messages */}
-          {hasTestableImage && !polkadotAccount && (
+          {hasTestableImage && !selectedPolkadotAccount && (
             <p className="text-xs text-amber-600">
               Connect a Polkadot wallet to test NFT minting
             </p>
           )}
           
-          {hasTestableImage && polkadotAccount && !isConfigured && (
+          {hasTestableImage && selectedPolkadotAccount && !isConfigured && (
             <p className="text-xs text-red-600">
               NFT minting not configured (missing collection ID or IPFS key)
             </p>

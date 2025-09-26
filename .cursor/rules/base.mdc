@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+
+If any major code changes follow @ui.mdc rules for best practices.
+
+## Testing Changes with pnpm dev
+
+When implementing changes or fixes, always test them using the development server:
+
+1. **Start Development Server**: Run `pnpm dev` to start the Next.js development server with Turbopack
+2. **Check Server Status**: Verify the server is running on the default port (3000) or handle port conflicts
+3. **Monitor Console**: Watch for any runtime errors or warnings in the browser console and terminal
