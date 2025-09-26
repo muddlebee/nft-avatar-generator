@@ -42,6 +42,7 @@
     "polkadot-api": "^1.15.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-error-boundary": "^6.0.0",
     "replicate": "^1.1.0",
     "rxjs": "^7.8.2",
     "sonner": "^2.0.7",
