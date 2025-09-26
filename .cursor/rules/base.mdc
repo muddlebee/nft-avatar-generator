@@ -2,6 +2,8 @@
 alwaysApply: true
 ---
 
+This is a next.js project with polkadot-api(papi) and kheopskit wallet integration.
+
 If any major code changes follow @ui.mdc rules for best practices.
 
 ## Testing Changes with pnpm dev
