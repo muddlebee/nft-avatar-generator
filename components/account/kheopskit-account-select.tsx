@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { shortenAddress } from "@/lib/utils";
 import { Check, Wallet } from "lucide-react";
-import { useState } from "react";
 import Identicon from "@polkadot/react-identicon";
+import { useSelectedAccount } from "@/hooks/use-selected-account";
 
 export function KheopskitAccountSelect() {
   const { accounts } = useWallets();
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 
   if (accounts.length === 0) {
     return (
@@ -35,11 +35,11 @@ export function KheopskitAccountSelect() {
             <Card 
               key={account.id} 
               className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                selectedAccountId === account.id 
+                selectedAccount?.id === account.id 
                   ? 'ring-2 ring-primary bg-primary/5' 
                   : 'hover:bg-muted/50'
               }`}
-              onClick={() => setSelectedAccountId(account.id)}
+              onClick={() => setSelectedAccount(account)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -63,7 +63,7 @@ export function KheopskitAccountSelect() {
                     </span>
                   </div>
                 </div>
-                {selectedAccountId === account.id && (
+                {selectedAccount?.id === account.id && (
                   <div className="text-primary">
                     <Check className="h-5 w-5" />
                   </div>

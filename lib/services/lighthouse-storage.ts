@@ -56,17 +56,44 @@ export class LighthouseStorage {
       
       onProgress?.(30);
       
+      // Detect content type from response headers
+      const contentType = response.headers.get('content-type') || 'image/png';
+      console.log('Detected content type:', contentType);
+      
+      // Determine file extension and name based on content type
+      let fileName = 'avatar';
+      let fileExtension = '.png';
+      
+      if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+        fileExtension = '.jpg';
+      } else if (contentType.includes('webp')) {
+        fileExtension = '.webp';
+      } else if (contentType.includes('gif')) {
+        fileExtension = '.gif';
+      }
+      
+      const fullFileName = `${fileName}${fileExtension}`;
+      
       const arrayBuffer = await response.arrayBuffer();
+      console.log('Image size:', arrayBuffer.byteLength, 'bytes');
       
       onProgress?.(50);
       
-      // Create File object from arrayBuffer (browser-compatible)
-      const imageFile = new File([arrayBuffer], 'avatar.png', { type: 'image/png' });
+      // Create File object from arrayBuffer with correct MIME type
+      const imageFile = new File([arrayBuffer], fullFileName, { type: contentType });
       
       onProgress?.(70);
       
+      console.log('Uploading image to Lighthouse:', {
+        fileName: fullFileName,
+        contentType,
+        size: arrayBuffer.byteLength
+      });
+      
       // Upload to Lighthouse using browser File API
       const uploadResponse = await lighthouse.upload([imageFile], this.apiKey);
+      
+      console.log('Lighthouse upload response:', uploadResponse);
       
       if (!uploadResponse.data?.Hash) {
         throw new Error('No hash returned from image upload');
@@ -76,6 +103,20 @@ export class LighthouseStorage {
       
       const cid = uploadResponse.data.Hash;
       const gatewayUrl = `https://gateway.lighthouse.storage/ipfs/${cid}`;
+      
+      console.log('Image uploaded successfully:', { cid, gatewayUrl });
+      
+      // Verify the uploaded image is accessible
+      try {
+        const verifyResponse = await fetch(gatewayUrl, { method: 'HEAD' });
+        if (!verifyResponse.ok) {
+          console.warn('Image may not be immediately accessible:', verifyResponse.status);
+        } else {
+          console.log('Image verified accessible at gateway');
+        }
+      } catch (verifyError) {
+        console.warn('Could not verify image accessibility:', verifyError);
+      }
       
       return { cid, gatewayUrl };
     } catch (error) {

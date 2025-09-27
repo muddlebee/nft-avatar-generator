@@ -8,17 +8,15 @@ This project uses **Kheopskit** for unified wallet management across Polkadot an
 
 ### Provider Setup
 ```typescript
-// providers/hybrid-provider.tsx
+// providers/wallet-provider.tsx
 <ThemeProvider>
   <KheopskitClientProvider>
-    <KheopskitSelectedAccountProvider>
-      {children}
-    </KheopskitSelectedAccountProvider>
+    {children}
   </KheopskitClientProvider>
 </ThemeProvider>
 ```
 
-The `KheopskitSelectedAccountProvider` provides global account selection state that persists across components and page refreshes.
+Account selection is now handled by a simple localStorage-based hook that persists across components and page refreshes.
 
 ### Configuration Files
 - `lib/config/kheopskit.ts` - Main Kheopskit configuration
@@ -44,19 +42,15 @@ import { WalletConnectorModal } from "@/components/wallet/wallet-connector-modal
 
 ### 2. Account Selection Components
 **Files:** 
-- `components/account/kheopskit-account-dropdown.tsx`
+- `components/account/account-dropdown.tsx`
 - `components/account/kheopskit-account-select.tsx`
 
 **Usage:**
 ```tsx
-import { KheopskitAccountDropdown } from "@/components/account/kheopskit-account-dropdown";
+import { AccountDropdown } from "@/components/account/account-dropdown";
 
-const [selectedAccount, setSelectedAccount] = useState("");
-
-<KheopskitAccountDropdown 
-  selectedAccountId={selectedAccount}
-  onAccountSelect={setSelectedAccount}
-/>
+// Account selection is handled automatically by the component
+<AccountDropdown placeholder="Select an account..." />
 ```
 
 ## Wallet Data Access
@@ -79,11 +73,11 @@ function MyComponent() {
 
 ### Using Global Selected Account (Recommended)
 ```tsx
-import { useSelectedAccount, useSelectedPolkadotAccount } from "@/providers/kheopskit-selected-account-provider";
+import { useSelectedAccount, useSelectedPolkadotAccount } from "@/hooks/use-selected-account";
 
 function MyComponent() {
   // Get the currently selected account across the entire app
-  const selectedAccount = useSelectedAccount();
+  const { selectedAccount, setSelectedAccount } = useSelectedAccount();
   
   // Get selected account only if it's a Polkadot account (useful for NFT minting, etc.)
   const selectedPolkadotAccount = useSelectedPolkadotAccount();
@@ -249,17 +243,20 @@ lib/config/
 ├── kheopskit.ts          # Main configuration
 └── wagmi.ts              # Ethereum configuration
 
+hooks/
+└── use-selected-account.ts       # Simple localStorage-based account selection
+
 providers/
 ├── kheopskit-provider.tsx        # Core provider
 ├── kheopskit-client-provider.tsx # Client wrapper
-└── hybrid-provider.tsx           # Combined providers
+└── wallet-provider.tsx           # Combined providers
 
 components/wallet/
 └── wallet-connector-modal.tsx    # Main wallet modal
 
 components/account/
-├── kheopskit-account-dropdown.tsx # Dropdown selector
-└── kheopskit-account-select.tsx   # Card selector
+├── account-dropdown.tsx          # Dropdown selector
+└── kheopskit-account-select.tsx  # Card selector
 
 app/signing-demo/
 └── page.tsx                      # Testing page

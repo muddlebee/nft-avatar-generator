@@ -101,55 +101,6 @@ Prefer `pallet_nfts` (the modern pallet) over legacy `uniques`. Key extrinsics:
 * **(Optional) Attributes**: `nfts.setAttribute(...)`
   (Dispatchable list & metadata docs). ([docs.unique.network][11], [Docs.rs][12], [paritytech.github.io][13])
 
-**JS (polkadot.js) snippet**
-
-```ts
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
-
-const WS = process.env.RPC || 'wss://paseo-rpc.dwellir.com'; // pick a stable Paseo/AssetHub RPC
-const METADATA_CID = 'ipfs://<metadataCID>';
-
-const keyring = new Keyring({ type: 'sr25519' });
-const alice = keyring.addFromUri('//Alice'); // for testnet only
-
-const api = await ApiPromise.create({ provider: new WsProvider(WS) });
-
-// 1) create a collection (id will be auto-assigned in many runtimes; otherwise track it)
-const create = api.tx.nfts.create(alice.address, { settings: 0 });
-await create.signAndSend(alice);
-
-// (Fetch next collection id via chain state or events; using 0 here for brevity)
-const collectionId = 0;
-
-// 2) set collection metadata (can be a CID string as Bytes)
-await api.tx.nfts.setCollectionMetadata(collectionId, METADATA_CID).signAndSend(alice);
-
-// 3) mint an item #1 to Alice
-await api.tx.nfts.mint(collectionId, 1, alice.address).signAndSend(alice);
-
-// 4) set item metadata to your Lighthouse CID
-await api.tx.nfts.setMetadata(collectionId, 1, METADATA_CID).signAndSend(alice);
-```
-
-If you prefer a **CLI**, check `polkacli` (defaults to Paseo Asset Hub; you can set RPC). ([Polkadot Forum][14])
-
----
-
-## 5) Testnet tokens & endpoints
-
-* **Paseo PAS faucet** (guide mentions getting PAS for Asset Hub): see Paseo/ink! docs; or use Matrix drip. ([ink!][5])
-* Up-to-date **Asset Hub endpoints** lists (choose a working RPC during the hackathon). ([CompareNodes.com][9], [Dwellir][7])
-
----
-
-## 6) Provenance & integrity (recommended)
-
-* Include `sha256_image` and `sha256_metadata` inside item attributes or collection metadata.
-* Store **prompt & seed hashes** (not the raw prompt if you want to keep it private).
-* Keep a copy of **Kontext parameters** (strength/guidance) in `properties`.
-
----
-
 
 ## 7) Acceptance criteria (hackathon)
 

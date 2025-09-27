@@ -6,10 +6,8 @@ This is a Next.js project with Polkadot API (PAPI) and KheopsKit wallet integrat
 
 For any major code changes, follow the @ui.mdc rules to ensure best practices are maintained.
 
-## Testing Changes with pnpm dev
-
-When implementing changes or fixes, always test them using the development server:
-- Check if the server is already running on the default port (3000) 
-- If the development server is not running on 3000, run `pnpm dev` to start the Next.js development server
+When implementing changes or fixes, always 
+- check if the server is already running on the default port (3000) on our Windows OS using the command `netstat -ano | findstr :3000`
+- If the development server is not running on 3000, run `pnpm dev` to start the Next.js development server and wait for 5-10 seconds to ensure the server is running.
 
 

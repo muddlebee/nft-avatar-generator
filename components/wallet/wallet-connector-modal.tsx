@@ -16,7 +16,7 @@ import { shortenAddress } from "@/lib/utils";
 import { Wallet, Check, ArrowLeft, User, Plug, PlugZap } from "lucide-react";
 import { toast } from "sonner";
 import Identicon from "@polkadot/react-identicon";
-import { useKheopskitSelectedAccount } from "@/providers/kheopskit-selected-account-provider";
+import { useSelectedAccount } from "@/hooks/use-selected-account";
 
 // Enhanced Wallet Card Component with Connection Status
 const EnhancedWalletCard = ({ 
@@ -145,7 +145,7 @@ const AccountCard = ({
 
 export const WalletConnectorModal = () => {
   const { wallets, accounts } = useWallets();
-  const { selectedAccountId, setSelectedAccountById } = useKheopskitSelectedAccount();
+  const { selectedAccount, setSelectedAccount } = useSelectedAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [currentView, setCurrentView] = useState<"wallets" | "accounts">("wallets");
   const [forceWalletView, setForceWalletView] = useState(false);
@@ -164,10 +164,10 @@ export const WalletConnectorModal = () => {
 
   // Auto-select account if only one is available
   useEffect(() => {
-    if (filteredAccounts.length === 1 && !selectedAccountId && currentView === "accounts") {
-      setSelectedAccountById(filteredAccounts[0].id);
+    if (filteredAccounts.length === 1 && !selectedAccount && currentView === "accounts") {
+      setSelectedAccount(filteredAccounts[0]);
     }
-  }, [filteredAccounts, selectedAccountId, currentView, setSelectedAccountById]);
+  }, [filteredAccounts, selectedAccount, currentView, setSelectedAccount]);
 
   // Note: Smart cleanup is handled by the global provider
 
@@ -217,7 +217,7 @@ export const WalletConnectorModal = () => {
 
   const handleDisconnectAll = () => {
     connectedWallets.forEach(wallet => wallet.disconnect());
-    setSelectedAccountById(null); // Clear global selection
+    setSelectedAccount(null); // Clear global selection
     setCurrentView("wallets");
     setForceWalletView(true);
     toast.success("All wallets disconnected");
@@ -254,10 +254,10 @@ export const WalletConnectorModal = () => {
     setSelectedWalletName(walletName);
     
     // Only reset account selection if current selection doesn't belong to this wallet
-    if (selectedAccountId) {
-      const currentAccount = accounts.find(acc => acc.id === selectedAccountId);
+    if (selectedAccount) {
+      const currentAccount = selectedAccount;
       if (currentAccount && currentAccount.walletName !== walletName) {
-        setSelectedAccountById(null);
+        setSelectedAccount(null);
       }
     }
     
@@ -424,26 +424,26 @@ export const WalletConnectorModal = () => {
                   <AccountCard
                     key={account.id}
                     account={account}
-                    isSelected={selectedAccountId === account.id}
-                    onSelect={() => setSelectedAccountById(account.id)}
+                    isSelected={selectedAccount?.id === account.id}
+                    onSelect={() => setSelectedAccount(account)}
                   />
                 ))}
               </div>
 
               {/* Quick Actions */}
-              {selectedAccountId && (
+              {selectedAccount && (
                 <div className="border-t pt-4">
                   <div className="space-y-3">
                     <div className="flex gap-2">
                       <Button
-                        onClick={() => handleSignMessage(selectedAccountId)}
+                        onClick={() => handleSignMessage(selectedAccount.id)}
                         variant="outline"
                         className="flex-1"
                       >
                         Test Sign
                       </Button>
                       <Button
-                        onClick={() => handleComplete(selectedAccountId)}
+                        onClick={() => handleComplete(selectedAccount.id)}
                         className="flex-1"
                       >
                         Complete Setup
@@ -453,10 +453,9 @@ export const WalletConnectorModal = () => {
                     {/* Selected Account Summary */}
                     <div className="text-xs text-muted-foreground text-center">
                       Selected: {(() => {
-                        const account = accounts.find(a => a.id === selectedAccountId);
-                        if (!account) return "";
-                        const name = account.platform === "polkadot" && 'name' in account ? account.name : "Account";
-                        return `${name} • ${shortenAddress(account.address)}`;
+                        if (!selectedAccount) return "";
+                        const name = selectedAccount.platform === "polkadot" && 'name' in selectedAccount ? selectedAccount.name : "Account";
+                        return `${name} • ${shortenAddress(selectedAccount.address)}`;
                       })()}
                     </div>
                   </div>

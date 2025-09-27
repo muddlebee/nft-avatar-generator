@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { KheopskitAccountDropdown } from "@/components/account/kheopskit-account-dropdown";
-import { useWallets } from "@kheopskit/react";
+import { AccountDropdown } from "@/components/account/account-dropdown";
+import { useSelectedAccount, useSelectedPolkadotAccount } from "@/hooks/use-selected-account";
 import { toast } from "sonner";
 import { ArrowLeft, FileSignature, Hash, Send } from "lucide-react";
 import Link from "next/link";
@@ -14,8 +14,8 @@ import { createClient, Binary } from "polkadot-api";
 import { getWsProvider } from "polkadot-api/ws-provider/web";
 
 export default function SigningDemo() {
-  const { accounts } = useWallets();
-  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+  const { selectedAccount, setSelectedAccount } = useSelectedAccount();
+  const selectedPolkadotAccount = useSelectedPolkadotAccount();
   const [customMessage, setCustomMessage] = useState("Hello from Kheopskit!");
   const [customPayload, setCustomPayload] = useState("0x48656c6c6f20576f726c64"); // "Hello World" in hex
   const [remarkMessage, setRemarkMessage] = useState("Hello from Polkadot-API!");
@@ -23,10 +23,6 @@ export default function SigningDemo() {
   const [isSigningMessage, setIsSigningMessage] = useState(false);
   const [isSigningPayload, setIsSigningPayload] = useState(false);
   const [isSubmittingRemark, setIsSubmittingRemark] = useState(false);
-
-  const selectedAccount = selectedAccountId 
-    ? accounts.find(account => account.id === selectedAccountId)
-    : null;
 
   const handleSignMessage = async () => {
     if (!selectedAccount) {
@@ -46,7 +42,7 @@ export default function SigningDemo() {
         const messageBytes = new TextEncoder().encode(customMessage);
         const signature = await selectedAccount.polkadotSigner.signBytes(messageBytes);
         
-        const hexSignature = Array.from(signature).map(b => b.toString(16).padStart(2, '0')).join('');
+        const hexSignature = Array.from(signature).map((b: unknown) => (b as number).toString(16).padStart(2, '0')).join('');
         toast.success("Message signed successfully!");
         console.log("Polkadot Message Signature:", `0x${hexSignature}`);
         
@@ -91,7 +87,7 @@ export default function SigningDemo() {
         const payloadBytes = new Uint8Array(Buffer.from(customPayload.slice(2), 'hex'));
         const signature = await selectedAccount.polkadotSigner.signBytes(payloadBytes);
         
-        const hexSignature = Array.from(signature).map(b => b.toString(16).padStart(2, '0')).join('');
+        const hexSignature = Array.from(signature).map((b: unknown) => (b as number).toString(16).padStart(2, '0')).join('');
         toast.success("Raw payload signed successfully!");
         console.log("Polkadot Raw Payload Signature:", `0x${hexSignature}`);
         
@@ -114,13 +110,8 @@ export default function SigningDemo() {
   };
 
   const handleSubmitSystemRemark = async () => {
-    if (!selectedAccount) {
-      toast.error("Please select an account first");
-      return;
-    }
-
-    if (selectedAccount.platform !== "polkadot") {
-      toast.error("System remarks are only available for Polkadot accounts");
+    if (!selectedPolkadotAccount) {
+      toast.error("Please select a Polkadot account first");
       return;
     }
 
@@ -145,7 +136,7 @@ export default function SigningDemo() {
 
       // Check account balance first
       try {
-        const accountInfo = await typedApi.query.System.Account.getValue(selectedAccount.address);
+        const accountInfo = await typedApi.query.System.Account.getValue(selectedPolkadotAccount.address);
         const freeBalance = accountInfo?.data.free || 0n;
         
         if (freeBalance === 0n) {
@@ -164,7 +155,7 @@ export default function SigningDemo() {
 
       // Get transaction fee estimate
       try {
-        const paymentInfo = await tx.getEstimatedFees(selectedAccount.address);
+        const paymentInfo = await tx.getEstimatedFees(selectedPolkadotAccount.address);
         console.log("Estimated transaction fee:", paymentInfo);
       } catch (feeError) {
         console.warn("Could not estimate fees:", feeError);
@@ -173,7 +164,7 @@ export default function SigningDemo() {
       toast.info("Submitting transaction...");
 
       // Submit and watch the transaction
-      const result = await tx.signSubmitAndWatch(selectedAccount.polkadotSigner);
+      const result = await tx.signSubmitAndWatch(selectedPolkadotAccount.polkadotSigner);
 
       console.log("Transaction submitted, watching for events...");
 
@@ -239,10 +230,7 @@ export default function SigningDemo() {
         <Card className="p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">1. Select Account</h2>
           <div className="space-y-4">
-            <KheopskitAccountDropdown 
-              selectedAccountId={selectedAccountId}
-              onAccountSelect={setSelectedAccountId}
-            />
+            <AccountDropdown placeholder="Select an account..." />
             
             {selectedAccount && (
               <div className="p-4 bg-muted/50 rounded-lg">
@@ -348,12 +336,12 @@ export default function SigningDemo() {
             </div>
             <Button 
               onClick={handleSubmitSystemRemark}
-              disabled={!selectedAccount || selectedAccount.platform !== "polkadot" || !remarkMessage.trim() || isSubmittingRemark}
+              disabled={!selectedPolkadotAccount || !remarkMessage.trim() || isSubmittingRemark}
               className="w-full"
             >
               {isSubmittingRemark ? "Submitting..." : "Submit System Remark"}
             </Button>
-            {selectedAccount && selectedAccount.platform !== "polkadot" && (
+            {selectedAccount && !selectedPolkadotAccount && (
               <p className="text-sm text-yellow-600 dark:text-yellow-400">
                 System remarks require a Polkadot account. Please connect a Polkadot wallet.
               </p>

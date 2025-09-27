@@ -1,6 +1,6 @@
 "use client";
 
-import { useKheopskitSelectedAccount } from "@/providers/kheopskit-selected-account-provider";
+import { useSelectedAccount } from "@/hooks/use-selected-account";
 import { useWallets } from "@kheopskit/react";
 import { shortenAddress } from "@/lib/utils";
 import { Check, User, AlertCircle } from "lucide-react";
@@ -21,7 +21,7 @@ export function SelectedAccountStatus({
   compact = false,
   onOpenWalletModal
 }: SelectedAccountStatusProps) {
-  const { selectedAccount } = useKheopskitSelectedAccount();
+  const { selectedAccount } = useSelectedAccount();
   const { accounts } = useWallets();
 
   const hasAccounts = accounts.length > 0;
