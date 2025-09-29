@@ -365,7 +365,7 @@ export default function SigningDemo() {
           <h2 className="text-xl font-semibold mb-4">Instructions</h2>
           <div className="space-y-3 text-sm">
             <div>
-              <strong>1. Connect Wallet:</strong> Use the "Connect Wallet" button in the navigation bar to connect your Polkadot or Ethereum wallet.
+              <strong>1. Connect Wallet:</strong> Use the &quot;Connect Wallet&quot; button in the navigation bar to connect your Polkadot or Ethereum wallet.
             </div>
             <div>
               <strong>2. Select Account:</strong> Choose an account from the dropdown above.

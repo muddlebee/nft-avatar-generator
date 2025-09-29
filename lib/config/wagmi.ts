@@ -3,7 +3,7 @@ import { APPKIT_CHAINS } from "./kheopskit";
 
 // Filter only Ethereum chains for Wagmi
 const ethereumChains = APPKIT_CHAINS.filter(network => 
-  network.chainNamespace === "eip155"
+  (network as any).chainNamespace === "eip155"
 );
 
 export const wagmiConfig = createConfig({

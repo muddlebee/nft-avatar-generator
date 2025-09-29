@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import type { UploadCardProps } from "./types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -107,11 +108,12 @@ export function UploadCard({
       <CardContent>
         {baseImage ? (
           <div className="space-y-3">
-            <div className="relative group">
-              <img
+            <div className="relative group h-48">
+              <Image
                 src={baseImage}
                 alt="Base avatar"
-                className="w-full h-48 object-contain rounded-lg border bg-muted/30"
+                fill
+                className="object-contain rounded-lg border bg-muted/30"
               />
               <button
                 onClick={clearImage}

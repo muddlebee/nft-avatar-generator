@@ -22,8 +22,8 @@ export function KheopskitAccountSelect() {
     );
   }
 
-  const selectedAccount = selectedAccountId 
-    ? accounts.find(account => account.id === selectedAccountId)
+  const selectedAccountData = selectedAccount 
+    ? accounts.find(account => account.id === selectedAccount.id)
     : null;
 
   return (
@@ -35,7 +35,7 @@ export function KheopskitAccountSelect() {
             <Card 
               key={account.id} 
               className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                selectedAccount?.id === account.id 
+                selectedAccountData?.id === account.id 
                   ? 'ring-2 ring-primary bg-primary/5' 
                   : 'hover:bg-muted/50'
               }`}
@@ -63,7 +63,7 @@ export function KheopskitAccountSelect() {
                     </span>
                   </div>
                 </div>
-                {selectedAccount?.id === account.id && (
+                {selectedAccountData?.id === account.id && (
                   <div className="text-primary">
                     <Check className="h-5 w-5" />
                   </div>

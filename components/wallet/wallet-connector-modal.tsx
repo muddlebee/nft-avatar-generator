@@ -13,6 +13,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { useWallets } from "@kheopskit/react";
 import { shortenAddress } from "@/lib/utils";
+import Image from "next/image";
 import { Wallet, Check, ArrowLeft, User, Plug, PlugZap } from "lucide-react";
 import { toast } from "sonner";
 import Identicon from "@polkadot/react-identicon";
@@ -46,10 +47,12 @@ const EnhancedWalletCard = ({
     >
       <div className="flex items-center gap-3">
         {wallet.icon && (
-          <img
+          <Image
             src={wallet.icon}
             alt={wallet.name}
-            className="w-8 h-8 rounded"
+            width={32}
+            height={32}
+            className="rounded"
           />
         )}
         <div className="flex-1">

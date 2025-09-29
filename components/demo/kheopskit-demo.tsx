@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { KheopskitAccountSelect } from "@/components/account/kheopskit-account-select";
-import { KheopskitAccountDropdown } from "@/components/account/kheopskit-account-dropdown";
+import { KheopskitAccountDropdown } from "@/components/account/account-dropdown";
 import { useWallets } from "@kheopskit/react";
 import { toast } from "sonner";
 
@@ -76,10 +76,7 @@ export function KheopskitDemo() {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Account Selection (Dropdown)</h3>
           <div className="space-y-4">
-            <KheopskitAccountDropdown 
-              selectedAccountId={selectedAccountId}
-              onAccountSelect={setSelectedAccountId}
-            />
+            <KheopskitAccountDropdown />
             {selectedAccount && (
               <div className="p-4 bg-muted/50 rounded-lg">
                 <h4 className="font-medium mb-2">Selected Account Details:</h4>

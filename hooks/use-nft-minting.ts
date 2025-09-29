@@ -4,7 +4,6 @@ import { useCallback } from 'react';
 import { createClient, Binary, TypedApi } from "polkadot-api";
 import { getWsProvider } from "polkadot-api/ws-provider/web";
 import { MultiAddress, paseo_asset_hub } from "@polkadot-api/descriptors";
-import { useWallets } from "@kheopskit/react";
 import type { TraitSelection } from '@/components/avatar-generator/types';
 import { LighthouseStorage } from '@/lib/services/lighthouse-storage';
 import { buildPrompt } from '@/lib/avatar-generator/prompt-builder';
@@ -107,7 +106,6 @@ export interface MintingResult {
 }
 
 export function useNFTMinting() {
-  const { accounts } = useWallets();
   const selectedPolkadotAccount = useSelectedPolkadotAccount();
   const { isLoading: isAccountLoading, isClientReady } = useSelectedAccount();
 
@@ -403,7 +401,7 @@ export function useNFTMinting() {
 
       throw error;
     }
-  }, [accounts, COLLECTION_ID, LIGHTHOUSE_API_KEY, RPC_ENDPOINT, selectedPolkadotAccount, isAccountLoading, isClientReady]);
+  }, [COLLECTION_ID, LIGHTHOUSE_API_KEY, RPC_ENDPOINT, selectedPolkadotAccount, isAccountLoading, isClientReady]);
 
   /**
    * Check if minting is properly configured
@@ -420,10 +418,11 @@ export function useNFTMinting() {
       hasLighthouseKey: !!LIGHTHOUSE_API_KEY,
       hasCollectionId: COLLECTION_ID > 0,
       collectionId: COLLECTION_ID,
-      hasPolkadotAccount: accounts.some(acc => acc.platform === 'polkadot'),
       hasSelectedPolkadotAccount: !!selectedPolkadotAccount,
       selectedAccountAddress: selectedPolkadotAccount?.address,
-      rpcEndpoint: RPC_ENDPOINT
+      rpcEndpoint: RPC_ENDPOINT,
+      isAccountLoading,
+      isClientReady
     };
   };
 

@@ -192,7 +192,7 @@ export function AvatarGeneratorClient() {
         uploadError: error instanceof Error ? error.message : 'Failed to generate avatar. Please try again.',
       }));
     }
-  }, [canGenerate, state.selectedTraits, state.baseImage]);
+  }, [canGenerate, state.selectedTraits, state.baseImage, maxAttempts, referralCode]);
 
   const handleVariantSelect = useCallback((variant: GeneratedVariant) => {
     // For now, just log the selection
@@ -209,7 +209,7 @@ export function AvatarGeneratorClient() {
     }));
   }, [state.variants]);
 
-  const handleMint = useCallback(() => {
+  const handleMint = useCallback(async () => {
     if (!state.lockedVariant) return;
     
     // This will be connected to Polkadot minting in Phase 2
@@ -292,7 +292,7 @@ export function AvatarGeneratorClient() {
     if (state.baseImage === '/swush.png') {
       convertImageToDataUrl();
     }
-  }, []);
+  }, [state.baseImage]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
