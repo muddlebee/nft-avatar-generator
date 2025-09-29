@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "",
+    "postinstall": "papi",
     "add-papi-demo-data": "pnpm papi add --skip-codegen -n paseo paseo && pnpm papi add --skip-codegen -n polkadot polkadot && pnpm papi add --skip-codegen -n paseo_asset_hub paseo_asset_hub && pnpm papi add --skip-codegen -n polkadot_asset_hub polkadot_asset_hub && pnpm papi",
     "test:ipfs": "npx tsx scripts/test-ipfs.ts"
   },
