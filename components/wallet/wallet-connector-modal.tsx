@@ -48,7 +48,7 @@ const EnhancedWalletCard = ({
       <div className="flex items-center gap-3">
         {wallet.icon && (
           <Image
-            src={wallet.icon}
+            src={wallet.icon.trim()}
             alt={wallet.name}
             width={32}
             height={32}
@@ -434,36 +434,7 @@ export const WalletConnectorModal = () => {
               </div>
 
               {/* Quick Actions */}
-              {selectedAccount && (
-                <div className="border-t pt-4">
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleSignMessage(selectedAccount.id)}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        Test Sign
-                      </Button>
-                      <Button
-                        onClick={() => handleComplete(selectedAccount.id)}
-                        className="flex-1"
-                      >
-                        Complete Setup
-                      </Button>
-                    </div>
-                    
-                    {/* Selected Account Summary */}
-                    <div className="text-xs text-muted-foreground text-center">
-                      Selected: {(() => {
-                        if (!selectedAccount) return "";
-                        const name = selectedAccount.platform === "polkadot" && 'name' in selectedAccount ? selectedAccount.name : "Account";
-                        return `${name} • ${shortenAddress(selectedAccount.address)}`;
-                      })()}
-                    </div>
-                  </div>
-                </div>
-              )}
+   {/* @ */}
 
               {/* Connected Wallets Summary */}
               <div className="border-t pt-3">

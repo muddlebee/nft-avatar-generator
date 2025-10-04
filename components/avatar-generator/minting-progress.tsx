@@ -135,6 +135,15 @@ export function MintingProgress({ progress, onClose }: MintingProgressProps) {
           </div>
         )}
 
+        {/* In Progress Notice */}
+        {progress.step !== 'idle' && progress.step !== 'finalized' && progress.step !== 'error' && (
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-xs text-blue-700 text-center">
+              Minting in progress... Please do not close this dialog.
+            </p>
+          </div>
+        )}
+
         {/* Action Buttons */}
         {(progress.step === 'finalized' || progress.step === 'error') && onClose && (
           <div className="flex space-x-2">

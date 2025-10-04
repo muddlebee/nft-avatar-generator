@@ -21,11 +21,11 @@ const WalletNavWrapper = dynamic(
 export function NavControls() {
   return (
     <div className="flex gap-2 items-center ml-6">
-      <Link href="/signing-demo">
+      {/* <Link href="/signing-demo">
         <Button variant="outline" size="sm">
           Signing Demo
         </Button>
-      </Link>
+      </Link> */}
       <WalletNavWrapper />
       <ThemeToggle />
     </div>
