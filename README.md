@@ -2,9 +2,6 @@
 
 An AI-powered NFT avatar generator built on Polkadot. Generate custom avatars, mint them as NFTs on Paseo testnet, and store metadata on IPFS - all with a seamless one-click experience.
 
-![NFT Avatar Generator](public/polkadot-nextjs-starter.png)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmuddlebee%2Fnft-avatar-generator&project-name=nft-avatar-generator&repository-name=nft-avatar-generator&demo-title=NFT%20Avatar%20Generator&demo-description=AI-powered%20NFT%20avatar%20generator%20on%20Polkadot&demo-url=https%3A%2F%2Fnft-avatar-generator.vercel.app)
-
 ## Features
 
 ### NFT Minting & Storage
