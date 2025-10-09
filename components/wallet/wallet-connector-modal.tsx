@@ -160,9 +160,9 @@ export const WalletConnectorModal = () => {
   // Use ref to prevent useEffect conflicts
   const isUserNavigating = useRef(false);
 
-  // Filter accounts based on selected wallet (if any)
+  // Filter accounts based on selected wallet (if any) with normalized comparison
   const filteredAccounts = selectedWalletName 
-    ? accounts.filter(account => account.walletName === selectedWalletName)
+    ? accounts.filter(account => account.walletName?.trim() === selectedWalletName.trim())
     : accounts;
 
   // Auto-select account if only one is available
@@ -205,6 +205,10 @@ export const WalletConnectorModal = () => {
     try {
       await wallet.connect();
       toast.success(`${wallet.name} connected successfully!`);
+      
+      // Set the wallet filter to show only this wallet's accounts when transitioning to accounts view
+      setSelectedWalletName(wallet.name.trim());
+      
       // Allow auto-transition to accounts after successful connection
       setForceWalletView(false);
     } catch (error) {
@@ -254,12 +258,18 @@ export const WalletConnectorModal = () => {
     isUserNavigating.current = true;
     setCurrentView("accounts");
     setForceWalletView(false);
-    setSelectedWalletName(walletName);
     
-    // Only reset account selection if current selection doesn't belong to this wallet
+    // Normalize wallet name (trim whitespace)
+    const normalizedWalletName = walletName.trim();
+    setSelectedWalletName(normalizedWalletName);
+    
+    // Always clear account selection if current selection doesn't belong to this wallet
     if (selectedAccount) {
-      const currentAccount = selectedAccount;
-      if (currentAccount && currentAccount.walletName !== walletName) {
+      const currentAccountWallet = selectedAccount.walletName?.trim();
+      if (currentAccountWallet !== normalizedWalletName) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[WalletConnector] Clearing selection: switching from', currentAccountWallet, 'to', normalizedWalletName);
+        }
         setSelectedAccount(null);
       }
     }
@@ -403,8 +413,11 @@ export const WalletConnectorModal = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
+                        if (process.env.NODE_ENV === 'development') {
+                          console.log('[WalletConnector] Showing all accounts from all wallets');
+                        }
                         setSelectedWalletName(null);
-                        // Don't reset selectedAccount - preserve user's selection
+                        // Preserve user's selection - it will remain valid if it exists in all accounts
                       }}
                       className="text-xs"
                     >
@@ -428,7 +441,22 @@ export const WalletConnectorModal = () => {
                     key={account.id}
                     account={account}
                     isSelected={selectedAccount?.id === account.id}
-                    onSelect={() => setSelectedAccount(account)}
+                    onSelect={() => {
+                      // Enhanced selection logic: clear old account if switching wallets
+                      if (selectedAccount && selectedAccount.walletName?.trim() !== account.walletName?.trim()) {
+                        if (process.env.NODE_ENV === 'development') {
+                          console.log('[WalletConnector] Account selection: switching wallet from', 
+                            selectedAccount.walletName, 'to', account.walletName);
+                        }
+                        // First clear the old selection
+                        setSelectedAccount(null);
+                        // Then set the new one in next tick to ensure clean state transition
+                        setTimeout(() => setSelectedAccount(account), 0);
+                      } else {
+                        // Same wallet or no previous selection - direct update
+                        setSelectedAccount(account);
+                      }
+                    }}
                   />
                 ))}
               </div>
@@ -444,8 +472,11 @@ export const WalletConnectorModal = () => {
                       Showing accounts from {selectedWalletName} • {" "}
                       <button 
                         onClick={() => {
+                          if (process.env.NODE_ENV === 'development') {
+                            console.log('[WalletConnector] View all accounts clicked');
+                          }
                           setSelectedWalletName(null);
-                          // Don't reset selectedAccount - preserve user's selection
+                          // Preserve user's selection - it will remain valid if it exists in all accounts
                         }}
                         className="text-primary hover:underline"
                       >

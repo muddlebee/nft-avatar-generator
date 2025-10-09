@@ -135,7 +135,7 @@ export const APPKIT_CHAINS: [AppKitNetwork, ...AppKitNetwork[]] = [
 // Kheopskit configuration
 export const kheopskitConfig: KheopskitConfig = {
   autoReconnect: true,
-  platforms: ["polkadot", "ethereum"], // Support both platforms
+  platforms: ["polkadot"], // Support both platforms
   walletConnect: {
     projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "demo-project-id",
     metadata: {
