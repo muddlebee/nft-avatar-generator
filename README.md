@@ -7,7 +7,6 @@ An AI-powered NFT avatar generator built on Polkadot. Generate custom avatars, m
 ### NFT Minting & Storage
 - **One-Click NFT Minting** - Complete IPFS upload and blockchain minting in a single action
 - **IPFS Storage** - Decentralized storage via Lighthouse with browser-compatible uploads
-- **OpenSea-Compatible Metadata** - Standard NFT metadata format for marketplace integration
 - **Paseo Testnet Integration** - Built for Polkadot's Paseo testnet with real-time progress tracking
 
 ### Polkadot Integration
@@ -50,6 +49,7 @@ An AI-powered NFT avatar generator built on Polkadot. Generate custom avatars, m
    ```env
    NEXT_PUBLIC_LIGHTHOUSE_API_KEY=your_lighthouse_api_key
    NEXT_PUBLIC_NFT_COLLECTION_ID=your_collection_id
+   REPLICATE_API_TOKEN=your_replicate_api_token
    ```
 
 4. Run the development server:
