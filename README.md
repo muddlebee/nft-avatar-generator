@@ -57,6 +57,12 @@ An AI-powered NFT avatar generator built on Polkadot. Generate custom avatars, m
    ```bash
    pnpm dev
    ```
+   
+5. Setup your Polkadot wallet and get some Polkadot testnet (Paseo) tokens from Asset Hub using [Testnet Faucet](https://faucet.polkadot.io/).
+
+
+<img width="567" height="446" alt="image" src="https://github.com/user-attachments/assets/227c8e62-01b9-41eb-b26a-7f2479d543ac" />
+
 
 ## How It Works
 
