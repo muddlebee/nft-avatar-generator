@@ -15,10 +15,12 @@ interface KheopskitAccount {
 }
 
 const STORAGE_KEY = 'kheopskit:selected-account-id';
+const STORAGE_EVENT = 'kheopskit:account-changed';
 
 /**
  * Simple localStorage-based account selection hook
  * Replaces the complex Context provider approach
+ * Now with cross-component synchronization via custom events
  */
 export function useSelectedAccount() {
   const { accounts } = useWallets();
@@ -35,6 +37,20 @@ export function useSelectedAccount() {
       setIsInitialized(true);
     }
   }, [isInitialized]);
+
+  // Listen for account changes from other hook instances
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleAccountChange = (event: CustomEvent<string | null>) => {
+      setSelectedId(event.detail);
+    };
+
+    window.addEventListener(STORAGE_EVENT as any, handleAccountChange);
+    return () => {
+      window.removeEventListener(STORAGE_EVENT as any, handleAccountChange);
+    };
+  }, []);
 
   // Find the selected account object from accounts list
   const selectedAccount = useMemo(() => 
@@ -74,6 +90,10 @@ export function useSelectedAccount() {
       } else {
         localStorage.removeItem(STORAGE_KEY);
       }
+      
+      // Broadcast change to all other hook instances
+      const event = new CustomEvent(STORAGE_EVENT, { detail: id });
+      window.dispatchEvent(event);
     }
   }, []);
 
@@ -82,6 +102,10 @@ export function useSelectedAccount() {
     setSelectedId(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY);
+      
+      // Broadcast change to all other hook instances
+      const event = new CustomEvent(STORAGE_EVENT, { detail: null });
+      window.dispatchEvent(event);
     }
   }, []);
 
