@@ -1,4 +1,4 @@
-# NFT Avatar Generator 🎨
+# AI Avatar Generator 🎨
 
 An AI-powered avatar generator that creates unique, customizable digital avatars using cutting-edge artificial intelligence. Built for the **Google AI Hackathon**, this application leverages Google's nano-banana model via Replicate to transform trait selections into one-of-a-kind avatar variations.
 
